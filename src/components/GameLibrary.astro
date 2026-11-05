@@ -60,4 +60,12 @@ const badgeOptions = ['pick', 'new', 'hot'];
 
   [cat, badge, kw].forEach((el) => el?.addEventListener('input', applyFilter));
   [cat, badge].forEach((el) => el?.addEventListener('change', applyFilter));
+
+  // 支持从首页分类入口带 ?cat= 预筛
+  const params = new URLSearchParams(window.location.search);
+  const preset = params.get('cat');
+  if (preset && cat) {
+    cat.value = preset;
+  }
+  applyFilter();
 </script>

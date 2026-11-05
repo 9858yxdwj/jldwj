@@ -16,7 +16,7 @@ const BASE = import.meta.env.BASE_URL;
 <a class="card" href={`${BASE}games/${game.slug}`} data-category={game.category} data-badge={game.badge} data-title={game.title.toLowerCase()} data-tags={game.tags.join(' ').toLowerCase()}>
   <div class="card-cover">
     <!-- 真实封面建议放 webp/avif 并走 astro:assets 做优化；此处用 public 下 SVG 占位 -->
-    <img src={game.cover} alt={`${game.title} 封面`} loading="lazy" width="480" height="270" />
+    <img src={game.cover} alt={`${game.title} 封面`} loading="lazy" decoding="async" width="480" height="270" />
   </div>
   <div class="card-body">
     <div class="card-title-row">

@@ -31,9 +31,24 @@ const config = {
   const open = document.getElementById('mp-open');
   const modal = document.getElementById('mp-modal');
   const close = document.getElementById('mp-close');
-  open?.addEventListener('click', () => modal?.classList.add('open'));
-  close?.addEventListener('click', () => modal?.classList.remove('open'));
+  let lastFocused: HTMLElement | null = null;
+
+  function show() {
+    lastFocused = document.activeElement as HTMLElement;
+    modal?.classList.add('open');
+    close?.focus();
+  }
+  function hide() {
+    modal?.classList.remove('open');
+    lastFocused?.focus();
+  }
+
+  open?.addEventListener('click', show);
+  close?.addEventListener('click', hide);
   modal?.addEventListener('click', (e) => {
-    if (e.target === modal) modal.classList.remove('open');
+    if (e.target === modal) hide();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('open')) hide();
   });
 </script>

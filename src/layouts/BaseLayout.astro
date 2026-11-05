@@ -22,6 +22,8 @@ const ogImg = ogImage
   : undefined;
 // base 感知：项目页下内部链接需带 /<repo>/ 前缀
 const BASE = import.meta.env.BASE_URL;
+// sitemap 绝对地址（本地无 Astro.site 时回退为 base 相对）
+const sitemapUrl = (Astro.site ?? new URL(BASE, 'https://example.github.io')).href.replace(/\/$/, '') + '/sitemap-index.xml';
 ---
 
 <!doctype html>
@@ -29,9 +31,12 @@ const BASE = import.meta.env.BASE_URL;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#ff5a5f" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    <link rel="sitemap" type="application/xml" title="Sitemap" href={sitemapUrl} />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
@@ -43,6 +48,9 @@ const BASE = import.meta.env.BASE_URL;
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    {ogImg && <meta name="twitter:image" content={ogImg} />}
 
     <!-- 结构化数据（站点级） -->
     <script type="application/ld+json" set:html={JSON.stringify({
@@ -51,26 +59,48 @@ const BASE = import.meta.env.BASE_URL;
       name: siteName,
       url: (Astro.site ?? Astro.url).href,
     })} />
+
+    <slot name="head" />
   </head>
   <body>
+    <a class="skip-link" href="#main">跳到主内容</a>
+
+    <div class="demo-banner" id="demo-banner">
+      本站为演示站点，游戏与攻略数据均为示例内容，正式发布前请替换为可核实信息。
+      <button type="button" id="demo-banner-close" aria-label="关闭提示">知道了</button>
+    </div>
+
     <header class="site-header">
       <div class="container">
         <a class="brand" href={BASE}><span>游</span>戏测评站</a>
-        <nav class="nav">
+        <nav class="nav" aria-label="主导航">
           <a href={BASE}>首页</a>
           <a href={`${BASE}library`}>游戏库</a>
+          <a href={`${BASE}guides`}>攻略</a>
         </nav>
       </div>
     </header>
 
-    <main>
+    <main id="main">
       <slot />
     </main>
 
     <footer class="site-footer">
       <div class="container">
-        <p>本站内容仅供參考，数据以官方为准。非实测，未核实信息已标注。</p>
+        <p>本站内容仅供参考，数据以官方为准。非实测，未核实信息已标注。</p>
       </div>
     </footer>
+
+    <script>
+      const banner = document.getElementById('demo-banner');
+      const btn = document.getElementById('demo-banner-close');
+      if (banner && localStorage.getItem('demo-banner-dismissed') === '1') {
+        banner.remove();
+      }
+      btn?.addEventListener('click', () => {
+        localStorage.setItem('demo-banner-dismissed', '1');
+        banner?.remove();
+      });
+    </script>
   </body>
 </html>

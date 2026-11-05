@@ -1,12 +1,12 @@
 import { writeFileSync } from 'node:fs';
 
 const covers = [
-  ['placeholder-legend', '#7c5cff', '#b39bff'],
-  ['pixel-tactics', '#2bb673', '#7ee0a8'],
-  ['card-chronicle', '#ff7a45', '#ffb38a'],
-  ['neon-shooter', '#1f9bff', '#7cc8ff'],
-  ['idle-tycoon', '#f5a623', '#ffd27a'],
-  ['realm-strategy', '#e8413c', '#ff8a86'],
+  ['placeholder-legend', '幻境传说', '#7c5cff', '#b39bff'],
+  ['pixel-tactics', '像素征途', '#2bb673', '#7ee0a8'],
+  ['card-chronicle', '卡牌编年史', '#ff7a45', '#ffb38a'],
+  ['neon-shooter', '霓虹突袭', '#1f9bff', '#7cc8ff'],
+  ['idle-tycoon', '放置商栈', '#f5a623', '#ffd27a'],
+  ['realm-strategy', '王权纷争', '#e8413c', '#ff8a86'],
 ];
 
 const coverSvg = (title, c1, c2) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 270" role="img" aria-label="${title}">
@@ -18,8 +18,8 @@ const coverSvg = (title, c1, c2) => `<svg xmlns="http://www.w3.org/2000/svg" vie
   <text x="24" y="186" font-family="sans-serif" font-size="16" fill="rgba(255,255,255,.85)">封面占位图（替换为真实 webp/avif）</text>
 </svg>`;
 
-for (const [slug, c1, c2] of covers) {
-  writeFileSync(`public/images/covers/${slug}.svg`, coverSvg(slug, c1, c2));
+for (const [slug, title, c1, c2] of covers) {
+  writeFileSync(`public/images/covers/${slug}.svg`, coverSvg(title, c1, c2));
 }
 
 const shotSvg = (n) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 270" role="img" aria-label="截图${n}">

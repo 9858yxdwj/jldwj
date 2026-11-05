@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import GuideCard from '../../components/GuideCard.astro';
+import { getCollection } from 'astro:content';
+
+const guides = (await getCollection('guides')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+
+const title = '攻略库';
+const description = '手游攻略合集：新手入门、PVP 思路、版本解读，结论先行、数据以官方为准。';
+---
+
+<BaseLayout title={title} description={description}>
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <h2>攻略库</h2>
+        <span style="color:var(--c-text-muted);font-size:14px;">共 {guides.length} 篇</span>
+      </div>
+      <div class="grid">
+        {guides.map((g) => <GuideCard guide={g} />)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

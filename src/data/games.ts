@@ -15,6 +15,8 @@
 // rating         number|null      否     评分（null → 列表/详情显示「待定」）
 // price          string           是     现价文案（"免费" / "¥68"）
 // originalPrice  string           否     划线原价（可选）
+// developer      string           否     开发商（详情页展示）
+// releaseDate    string           否     上线日期（详情页展示，如 "2025-03"）
 // externalUrl    string           是     外部下载/官网地址
 // screenshots    string[]         否     截图画廊（空数组 → 详情页隐藏画廊）
 import gamesData from './games.json';
@@ -33,6 +35,8 @@ export interface Game {
   rating: number | null;
   price: string;
   originalPrice?: string;
+  developer?: string;
+  releaseDate?: string;
   externalUrl: string;
   screenshots: string[];
 }

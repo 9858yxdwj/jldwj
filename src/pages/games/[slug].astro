@@ -11,6 +11,7 @@ const { game } = Astro.props;
 const ratingText = game.rating === null ? '待定' : game.rating.toFixed(1);
 const BASE = import.meta.env.BASE_URL;
 const hasGallery = Array.isArray(game.screenshots) && game.screenshots.length > 0;
+const pageUrl = new URL(`${BASE}games/${game.slug}`, Astro.site ?? Astro.url).href;
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -18,21 +19,33 @@ const jsonLd = {
   name: game.title,
   description: game.description,
   genre: game.category,
-  url: new URL(`${BASE}games/${game.slug}`, Astro.site ?? Astro.url).href,
+  url: pageUrl,
   image: new URL(game.cover, Astro.site ?? Astro.url).href,
   offers: { '@type': 'Offer', price: game.price, availability: 'https://schema.org/InStock' },
+};
+const breadcrumbLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: '首页', item: new URL(BASE, Astro.site ?? Astro.url).href },
+    { '@type': 'ListItem', position: 2, name: '游戏库', item: new URL(`${BASE}library`, Astro.site ?? Astro.url).href },
+    { '@type': 'ListItem', position: 3, name: game.title, item: pageUrl },
+  ],
 };
 ---
 
 <BaseLayout title={game.title} description={game.description} ogImage={game.cover}>
   <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} />
 
   <div class="container">
-    <a href={`${BASE}library`} style="display:inline-block;margin:var(--sp-5) 0 var(--sp-2);color:var(--c-accent);">← 返回游戏库</a>
+    <nav class="breadcrumb" aria-label="面包屑">
+      <a href={BASE}>首页</a> / <a href={`${BASE}library`}>游戏库</a> / <span>{game.title}</span>
+    </nav>
 
     <article class="detail">
       <div class="detail-cover">
-        <img src={game.cover} alt={`${game.title} 封面`} width="480" height="270" />
+        <img src={game.cover} alt={`${game.title} 封面`} decoding="async" width="480" height="270" />
       </div>
 
       <div class="detail-info">
@@ -48,16 +61,22 @@ const jsonLd = {
           {game.originalPrice && <span class="price-old">{game.originalPrice}</span>}
         </div>
 
-        <div class="kv"><span class="k">平台</span><span>{game.platform.join(' / ')}</span></div>
-        <div class="kv"><span class="k">标签</span><span>{game.tags.join('、')}</span></div>
-        <div class="kv"><span class="k">简介</span><span>{game.description}</span></div>
+        <div class="kv"><span class="k">平台</span><span class="v">{game.platform.join(' / ')}</span></div>
+        <div class="kv"><span class="k">标签</span><span class="v">{game.tags.join('、')}</span></div>
+        <div class="kv"><span class="k">简介</span><span class="v">{game.description}</span></div>
+
+        {game.developer && (
+          <div class="detail-dev">
+            开发商：{game.developer}{game.releaseDate ? ` · 上线：${game.releaseDate}` : ''}
+          </div>
+        )}
 
         <a class="btn-download" href={game.externalUrl} target="_blank" rel="noopener">前往下载 / 官网</a>
 
         {hasGallery && (
           <div class="gallery">
             {game.screenshots.map((s) => (
-              <img src={s} alt={`${game.title} 截图`} loading="lazy" width="480" height="270" />
+              <img src={s} alt={`${game.title} 截图`} loading="lazy" decoding="async" width="480" height="270" />
             ))}
           </div>
         )}
