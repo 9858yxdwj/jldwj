@@ -18,3 +18,6 @@ Thumbs.db
 
 # WorkBuddy 本地项目数据
 .workbuddy/
+
+# 图片源素材（原始抓取，可由 scripts/build-images.mjs 重建）
+.assets-src/

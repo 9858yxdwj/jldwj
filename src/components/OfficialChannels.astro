@@ -1,0 +1,21 @@
+---
+// 官方渠道入口：直接链接到主推游戏官网，避免展示无真实内容的占位二维码
+import { featuredGames } from '../data/games';
+---
+
+<section class="container">
+  <div class="mp-card official-card">
+    <div class="mp-text">
+      <strong>前往官方渠道</strong>
+      <small>游戏下载、开服与版本公告请以官网为准；本站为独立测评介绍，不代收任何费用。</small>
+    </div>
+    <div class="official-links">
+      {featuredGames.map((g) => (
+        <a class="official-link" href={g.externalUrl} target="_blank" rel="noopener noreferrer">
+          {g.icon && <img src={g.icon} alt="" width="28" height="28" loading="lazy" decoding="async" />}
+          <span>{g.title} 官网 ↗</span>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>

@@ -10,7 +10,7 @@ interface Props {
 
 const {
   title = '手游测评站',
-  description = '手游测评与攻略站：真实数据、结论先行的精品推荐与游戏库。',
+  description = '手游测评与攻略站：主推《桃园将帅录》《小小屠龙》，提供真实、克制、结论先行的游戏测评与实战攻略。',
   ogImage,
 } = Astro.props;
 
@@ -66,7 +66,7 @@ const sitemapUrl = (Astro.site ?? new URL(BASE, 'https://example.github.io')).hr
     <a class="skip-link" href="#main">跳到主内容</a>
 
     <div class="demo-banner" id="demo-banner">
-      本站为演示站点，游戏与攻略数据均为示例内容，正式发布前请替换为可核实信息。
+      内容整理自官方公开资料，本站未做实测，评分均标注「待定」；下载与版本信息请以游戏官网为准。
       <button type="button" id="demo-banner-close" aria-label="关闭提示">知道了</button>
     </div>
 
@@ -87,7 +87,13 @@ const sitemapUrl = (Astro.site ?? new URL(BASE, 'https://example.github.io')).hr
 
     <footer class="site-footer">
       <div class="container">
-        <p>本站内容仅供参考，数据以官方为准。非实测，未核实信息已标注。</p>
+        <p>本站为独立测评介绍站，非游戏官方站点。内容与图片整理自各游戏官方公开渠道，图片版权归原运营方所有；本站未做实测，未核实信息均已标注，数据以官方公告为准。</p>
+        <p class="footer-sources">
+          图片来源：
+          <a href="https://lzgzb.com" target="_blank" rel="noopener noreferrer">桃园将帅录官网</a> ·
+          <a href="https://xxtlxz.cn" target="_blank" rel="noopener noreferrer">小小屠龙官网</a> ·
+          <a href="http://www.paogf.com" target="_blank" rel="noopener noreferrer">老炮怀旧手游平台</a>
+        </p>
       </div>
     </footer>
 

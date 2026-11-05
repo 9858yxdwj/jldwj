@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import MiniProgramEntry from '../../components/MiniProgramEntry.astro';
+import OfficialChannels from '../../components/OfficialChannels.astro';
 import { games } from '../../data/games';
 
 export function getStaticPaths() {
@@ -45,7 +45,7 @@ const breadcrumbLd = {
 
     <article class="detail">
       <div class="detail-cover">
-        <img src={game.cover} alt={`${game.title} 封面`} decoding="async" width="480" height="270" />
+        <img src={game.cover} alt={`${game.title} 官方宣传图`} decoding="async" width="960" height="540" />
       </div>
 
       <div class="detail-info">
@@ -53,7 +53,7 @@ const breadcrumbLd = {
         <div class="card-meta">
           <span>{game.category}</span>
           <span class="rating">★ {ratingText}</span>
-          <span>在玩 {game.players}</span>
+          <span>{game.status}</span>
         </div>
 
         <div class="price-row">
@@ -67,22 +67,23 @@ const breadcrumbLd = {
 
         {game.developer && (
           <div class="detail-dev">
-            开发商：{game.developer}{game.releaseDate ? ` · 上线：${game.releaseDate}` : ''}
+            信息来源：{game.developer}{game.releaseDate ? ` · 上线：${game.releaseDate}` : ''}
           </div>
         )}
+        <p class="detail-note">本站未对游戏做实测，评分显示「待定」；平台、收费与版本内容均以官方公告为准。</p>
 
         <a class="btn-download" href={game.externalUrl} target="_blank" rel="noopener">前往下载 / 官网</a>
 
         {hasGallery && (
           <div class="gallery">
             {game.screenshots.map((s) => (
-              <img src={s} alt={`${game.title} 截图`} loading="lazy" decoding="async" width="480" height="270" />
+              <img src={s} alt={`${game.title} 官方游戏截图`} loading="lazy" decoding="async" width="960" height="540" />
             ))}
           </div>
         )}
       </div>
     </article>
 
-    <MiniProgramEntry />
+    <OfficialChannels />
   </div>
 </BaseLayout>

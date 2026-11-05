@@ -25,6 +25,7 @@ export default defineConfig({
   integrations: [sitemap()],
   // 开发服务器监听所有网卡（含 IPv4 127.0.0.1），方便本地预览面板访问
   server: { host: true, port: 4321 },
-  // 图片优化：Astro 默认对 import 的本地图片（astro:assets）做 webp/avif 转换与懒加载。
-  // 本骨架封面走 public 下的 SVG 占位图，换成真实 webp/avif 即可享受优化。
+  // 图片：public/images/ 下的 webp 由 scripts/build-images.mjs 统一生成（压缩 + 尺寸归一）。
+  // 所有 public 资源都通过 src/utils/asset.ts 的 asset() 转成 base 感知路径，
+  // 避免 GitHub Pages 项目页（/<repo>/）下图片 404。
 });

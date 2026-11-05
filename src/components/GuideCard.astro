@@ -1,5 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import { asset } from '../utils/asset';
 
 interface Props {
   guide: CollectionEntry<'guides'>;
@@ -7,13 +8,13 @@ interface Props {
 const { guide } = Astro.props;
 const { title, summary, cover, category, tags, date } = guide.data;
 const BASE = import.meta.env.BASE_URL;
-const coverImg = cover ?? '/images/shots/shot-1.svg';
+const coverImg = asset(cover ?? '/images/shots/taoyuan-1.webp');
 const fmtDate = date.toISOString().slice(0, 10);
 ---
 
 <a class="card" href={`${BASE}guides/${guide.slug}`} data-title={title.toLowerCase()} data-tags={tags.join(' ').toLowerCase()}>
   <div class="card-cover">
-    <img src={coverImg} alt={`${title} 封面`} loading="lazy" decoding="async" width="480" height="270" />
+    <img src={coverImg} alt={`${title} 配图`} loading="lazy" decoding="async" width="960" height="540" />
   </div>
   <div class="card-body">
     <div class="card-title-row">
