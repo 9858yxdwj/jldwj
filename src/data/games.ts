@@ -20,7 +20,6 @@
 // originalPrice  string           否     划线原价（可选）
 // developer      string           否     开发商/运营方（详情页展示）
 // releaseDate    string           否     上线日期（详情页展示，如 "2026-10"）
-// externalUrl    string           是     外部下载/官网地址
 // screenshots    string[]         否     截图画廊（空数组 → 详情页隐藏画廊）
 import gamesData from './games.json';
 import { asset } from '../utils/asset';
@@ -44,7 +43,6 @@ export interface Game {
   originalPrice?: string;
   developer?: string;
   releaseDate?: string;
-  externalUrl: string;
   screenshots: string[];
 }
 

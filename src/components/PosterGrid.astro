@@ -70,7 +70,6 @@ const {
         <p class="modal-desc" data-m-desc></p>
         <div class="modal-actions">
           <a class="btn-primary" data-m-detail href="#">查看完整测评</a>
-          <a class="btn-ghost" data-m-official href="#" target="_blank" rel="noopener noreferrer">前往官网 ↗</a>
         </div>
       </div>
     </div>
@@ -138,7 +137,6 @@ const {
     const mTags = modal?.querySelector<HTMLElement>('[data-m-tags]');
     const mDesc = modal?.querySelector<HTMLElement>('[data-m-desc]');
     const mDetail = modal?.querySelector<HTMLAnchorElement>('[data-m-detail]');
-    const mOfficial = modal?.querySelector<HTMLAnchorElement>('[data-m-official]');
     let lastFocus: HTMLElement | null = null;
 
     function closeModal() {
@@ -159,7 +157,6 @@ const {
         mTags.innerHTML = items.map((t) => `<span>${t}</span>`).join('');
       }
       if (mDetail) mDetail.href = d.pHref ?? '#';
-      if (mOfficial) mOfficial.href = d.pOfficial ?? '#';
       modal.classList.add('open');
       modal.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';

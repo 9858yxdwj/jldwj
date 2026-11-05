@@ -136,7 +136,6 @@ node scripts/build-posters.mjs   # 上述素材 → 竖版海报（新增游戏�
 | `rating` | number \| null | 是 | 评分；未实测填 `null`（显示「待定」） |
 | `price` | string | 是 | 现价文案（如「免费下载」） |
 | `developer` | string | 否 | 信息来源 / 运营方（详情页展示） |
-| `externalUrl` | string | 是 | 官网地址（主推卡 / 预览弹窗「前往官网」与详情页下载按钮使用） |
 | `screenshots` | string[] | 否 | 截图画廊（空数组 → 隐藏） |
 
 ### 添加攻略

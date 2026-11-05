@@ -220,7 +220,6 @@ main { padding-top: 64px; min-height: 70vh; }
   padding: 11px 20px; border-radius: var(--r-btn); font-size: 14px;
   transition: transform .15s ease;
 }
-.btn-spotlight.ghost { background: transparent; color: #fff; border: 1px solid rgba(255, 255, 255, 0.55); }
 .btn-spotlight:hover { transform: translateY(-2px); }
 
 /* ── 胶囊筛选 ─────────────────────────────── */
