@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import OfficialChannels from '../../components/OfficialChannels.astro';
+import ServiceCard from '../../components/ServiceCard.astro';
 import { getCollection } from 'astro:content';
 import { games } from '../../data/games';
 import { asset } from '../../utils/asset';
@@ -83,6 +83,6 @@ const breadcrumbLd = {
       )}
     </article>
 
-    <OfficialChannels />
+    <ServiceCard />
   </div>
 </BaseLayout>

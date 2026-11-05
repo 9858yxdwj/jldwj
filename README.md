@@ -14,7 +14,7 @@
   - `src/utils/asset.ts`：base 感知路径，保证项目页下资源不 404
 - 结构化数据：`VideoGame` / `Article` / `BreadcrumbList` / `WebSite`
 - SEO：`robots.txt` 端点、sitemap、canonical、OG/Twitter、自定义 404
-- 交互：纯前端胶囊筛选 + 关键词搜索 + 快速预览弹窗 + 复制官网 + 悬浮按钮 / Toast
+- 交互：纯前端胶囊筛选 + 关键词搜索 + 快速预览弹窗 + 客服二维码放大 + 悬浮按钮 / Toast
 - 部署：GitHub Actions 自动构建并发布到 GitHub Pages
 - 收录：可选百度资源平台主动推送（需配置密钥）
 
@@ -43,10 +43,10 @@
 │   │   ├── GuideCard.astro        # 竖版攻略海报卡
 │   │   ├── HotScroll.astro        # 热门横滑 4:5 卡片
 │   │   ├── FeaturedSpotlight.astro# 主推双大图
-│   │   ├── ContactCard.astro      # 官方渠道卡片（复制官网）
-│   │   └── OfficialChannels.astro # 详情页紧凑官方入口
+│   │   ├── ContactCard.astro      # 首页客服卡（二维码 + 放大弹窗 + 官网直达）
+│   │   └── ServiceCard.astro      # 详情页 / 攻略页紧凑客服条
 │   └── pages/
-│       ├── index.astro           # 首页（沉浸 Hero + 主推 + 热门横滑 + 全部游戏 + 攻略 + 官方渠道）
+│       ├── index.astro           # 首页（沉浸 Hero + 主推 + 热门横滑 + 全部游戏 + 攻略 + 客服）
 │       ├── library.astro         # 游戏库（海报网格 + 筛选，支持 ?cat= / ?kw= 预筛）
 │       ├── games/[slug].astro    # 游戏详情页
 │       ├── guides/index.astro    # 攻略库
@@ -57,8 +57,11 @@
     ├── posters/   # 8 张 3:4 竖版海报（海报墙卡片主视觉）
     ├── banners/   # 2 张主推大图
     ├── icons/     # 8 张游戏图标
-    └── shots/     # 9 张官方游戏截图
+    ├── shots/     # 9 张官方游戏截图
+    └── service-qr.png  # 客服微信公众号二维码（290×290 无损 PNG，含白色静区）
 ```
+
+> 客服二维码由站方提供（源文件 `qrcode_for_gh_7c22786de640_258.jpg`），已转为无损 PNG 并补齐白色静区以保证扫码识别率。如需更换，直接覆盖 `public/images/service-qr.png` 即可，组件通过 `asset()` 自动处理项目页路径。
 
 ## 本地开发
 
@@ -133,7 +136,7 @@ node scripts/build-posters.mjs   # 上述素材 → 竖版海报（新增游戏�
 | `rating` | number \| null | 是 | 评分；未实测填 `null`（显示「待定」） |
 | `price` | string | 是 | 现价文案（如「免费下载」） |
 | `developer` | string | 否 | 信息来源 / 运营方（详情页展示） |
-| `externalUrl` | string | 是 | 官网地址（弹窗「前往官网」与官方渠道卡片使用） |
+| `externalUrl` | string | 是 | 官网地址（弹窗「前往官网」与客服卡片底部官网直达使用） |
 | `screenshots` | string[] | 否 | 截图画廊（空数组 → 隐藏） |
 
 ### 添加攻略
@@ -179,7 +182,8 @@ date: 2026-11-05
 
 ## 合规与内容声明
 
-- 本站为独立测评介绍站，非游戏官方站点；不代收任何费用。
+- 本站为独立测评介绍站，非游戏官方站点；不代收任何费用，也不处理充值与账号问题。
+- 客服入口为站方提供的公众号二维码，扫码后按公众号指引咨询；页面已提示「请勿向任何私人账号转账」。
 - 内容与图片整理自官方公开渠道，图片版权归原运营方所有；如需商用请先取得授权。
 - 竖版海报为官方宣传图的二次排版示意图，非官方原图。
 - 数据以官方公告为准；未核实信息均明确标注，绝不编造在线人数、评分与实测结论。

@@ -81,8 +81,9 @@ const sitemapUrl = (Astro.site ?? new URL(BASE, 'https://example.github.io')).hr
 
     <footer class="site-footer">
       <div class="container">
-        <p>© 2026 游戏测评站 · 精选好游戏，真实、克制、结论先行 · <a href={BASE}>回到首页</a> · <a href={`${BASE}#official`}>官方渠道</a></p>
+        <p>© 2026 游戏测评站 · 精选好游戏，真实、克制、结论先行 · <a href={BASE}>回到首页</a> · <a href={`${BASE}#service`}>联系客服</a></p>
         <p>本站为独立测评介绍站，非游戏官方站点。内容与图片整理自各游戏官方公开渠道，图片版权归原运营方所有；本站未做实测，评分均标注「待定」，版本与收费信息以官方公告为准。</p>
+        <p class="footer-note">客服二维码为本站提供的公众号入口，扫码后请按公众号指引咨询；本站不代收任何费用，也不处理充值与账号问题。</p>
         <p class="footer-sources">
           图片来源：
           <a href="https://lzgzb.com" target="_blank" rel="noopener noreferrer">桃园将帅录官网</a> ·
@@ -93,7 +94,7 @@ const sitemapUrl = (Astro.site ?? new URL(BASE, 'https://example.github.io')).hr
       </div>
     </footer>
 
-    <button class="fab" id="fab" type="button">💬 官方渠道</button>
+    <button class="fab" id="fab" type="button">💬 联系客服</button>
     <button class="to-top" id="toTop" type="button" aria-label="回到顶部">↑</button>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -122,17 +123,42 @@ const sitemapUrl = (Astro.site ?? new URL(BASE, 'https://example.github.io')).hr
 
       toTop?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
       fab?.addEventListener('click', () => {
-        const target = document.getElementById('official');
+        const target = document.getElementById('service');
         if (target) {
           window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 84, behavior: 'smooth' });
         } else {
-          window.location.href = base + '#official';
+          window.location.href = base + '#service';
         }
       });
 
-      // 锚点跳转补偿固定导航高度
-      if (window.location.hash) {
-        const el = document.querySelector(window.location.hash);
+      // 客服二维码放大弹窗（Esc / 遮罩关闭、焦点回归）
+      // 注意：define:vars 的内联脚本不会被 TypeScript 编译，此处只能写纯 JS
+      const qrModal = document.querySelector('[data-qr-modal]');
+      let qrPrevFocus = null;
+      const openQr = () => {
+        if (!qrModal) return;
+        qrPrevFocus = document.activeElement;
+        qrModal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        qrModal.querySelector('[data-qr-close]')?.focus();
+      };
+      const closeQr = () => {
+        if (!qrModal) return;
+        qrModal.classList.remove('open');
+        document.body.style.overflow = '';
+        qrPrevFocus?.focus();
+      };
+      document.querySelectorAll('[data-qr-open]').forEach((btn) => btn.addEventListener('click', openQr));
+      qrModal?.querySelector('[data-qr-close]')?.addEventListener('click', closeQr);
+      qrModal?.addEventListener('click', (e) => { if (e.target === qrModal) closeQr(); });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && qrModal?.classList.contains('open')) closeQr();
+      });
+
+      // 锚点跳转补偿固定导航高度（#official 为旧锚点，兼容映射到客服区）
+      const hash = window.location.hash === '#official' ? '#service' : window.location.hash;
+      if (hash) {
+        const el = document.querySelector(hash);
         if (el) setTimeout(() => window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 84, behavior: 'smooth' }), 120);
       }
     </script>

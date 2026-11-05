@@ -431,7 +431,7 @@ main { padding-top: 64px; min-height: 70vh; }
 .modal-actions { display: flex; gap: 12px; }
 .modal-actions .btn-primary { flex: 1; }
 
-/* ── 联系 / 官方渠道区块 ─────────────────── */
+/* ── 客服 / 二维码区块 ───────────────────── */
 .contact { max-width: 1200px; margin: 60px auto 0; padding: 0 30px 20px; }
 .contact-card {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02));
@@ -439,33 +439,29 @@ main { padding-top: 64px; min-height: 70vh; }
   padding: 34px; display: flex; gap: 34px; align-items: center; flex-wrap: wrap;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
 }
-.contact-badge {
-  flex: 0 0 170px; text-align: center;
-  background: rgba(79, 172, 254, 0.08); border: 1px solid rgba(79, 172, 254, 0.25);
-  border-radius: 18px; padding: 22px 14px;
+.service-qr-wrap { flex: 0 0 190px; text-align: center; }
+.service-qr-btn {
+  display: block; width: 100%; padding: 10px; background: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.22); border-radius: 18px;
+  cursor: zoom-in; transition: transform .25s ease, box-shadow .25s ease;
 }
-.contact-badge .big { font-size: 42px; line-height: 1; margin-bottom: 10px; }
-.contact-badge .cap { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.service-qr-btn:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(255, 107, 107, 0.28); }
+.service-qr-btn img { display: block; width: 100%; height: auto; border-radius: 8px; }
+.service-qr-zoom { display: block; margin-top: 8px; font-size: 11px; font-weight: 700; color: #5b6472; }
+.service-qr-cap { margin-top: 10px; font-size: 12px; color: var(--muted); }
 .contact-info { flex: 1; min-width: 280px; }
+.service-eyebrow {
+  display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: 1.6px;
+  margin-bottom: 10px; background: var(--grad); -webkit-background-clip: text;
+  background-clip: text; -webkit-text-fill-color: transparent;
+}
 .contact-info h3 { font-size: 23px; font-weight: 800; margin-bottom: 10px; }
-.contact-info > p { color: rgba(255, 255, 255, 0.68); line-height: 1.7; font-size: 14px; margin-bottom: 20px; }
-.wechat-row {
-  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-  background: rgba(79, 172, 254, 0.1); border: 1px solid rgba(79, 172, 254, 0.3);
-  border-radius: 12px; padding: 12px 16px; margin-bottom: 18px;
-}
-.wechat-label { font-size: 13px; color: var(--muted); }
-.wechat-id { font-size: 17px; font-weight: 800; letter-spacing: .5px; background: var(--grad-blue); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-.btn-copy {
-  margin-left: auto; padding: 8px 16px; border: 1px solid var(--line-strong);
-  border-radius: 9px; cursor: pointer; background: rgba(255, 255, 255, 0.12);
-  color: #fff; font-size: 13px; font-weight: 700; transition: background .2s, transform .15s;
-}
-.btn-copy:hover { background: rgba(255, 255, 255, 0.2); }
-.btn-copy:active { transform: scale(0.95); }
-.btn-copy.copied { background: var(--green); color: #062b16; border-color: var(--green); }
+.contact-info > p { color: rgba(255, 255, 255, 0.68); line-height: 1.7; font-size: 14px; margin-bottom: 16px; }
+.contact-info > p strong { color: #fff; }
+.service-list { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-wrap: wrap; gap: 8px 18px; }
+.service-list li { font-size: 13px; color: rgba(255, 255, 255, 0.72); }
 .official-card { flex-wrap: wrap; }
-.official-links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
+.official-links { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 6px; }
 .official-link {
   display: inline-flex; align-items: center; gap: 8px;
   border: 1px solid var(--line-strong); border-radius: var(--r-btn);
@@ -474,13 +470,55 @@ main { padding-top: 64px; min-height: 70vh; }
 }
 .official-link:hover { border-color: var(--accent2); background: rgba(255, 255, 255, 0.06); transform: translateY(-2px); }
 .official-link img { width: 28px; height: 28px; border-radius: 6px; }
+.service-mini-links { margin-top: 0; gap: 10px; }
+.service-mini-links .mini-label { font-size: 12px; color: var(--muted); }
+.service-mini-links .official-link { padding: 7px 12px; font-size: 12px; }
+.service-mini-links .official-link img { width: 20px; height: 20px; }
 .mp-card {
   display: flex; align-items: center; gap: var(--sp-4);
   border: 1px solid var(--line); border-radius: var(--r-card);
   padding: var(--sp-4); margin-top: var(--sp-6); background: var(--surface);
 }
 .mp-card .mp-text { flex: 1; }
-.mp-card .mp-text small { color: var(--muted); }
+.mp-card .mp-text small { color: var(--muted); display: block; line-height: 1.7; margin-top: 6px; }
+
+/* 详情页紧凑客服条 */
+.service-block { scroll-margin-top: 90px; }
+.service-card { gap: 18px; }
+.service-qr-mini {
+  flex: 0 0 104px; padding: 8px; background: #fff; border: 1px solid var(--line-strong);
+  border-radius: 12px; cursor: zoom-in; transition: transform .2s ease;
+}
+.service-qr-mini:hover { transform: scale(1.04); }
+.service-qr-mini img { display: block; width: 100%; height: auto; border-radius: 4px; }
+.service-card .mp-text strong { font-size: 17px; }
+.service-card .service-mini-links { margin-top: 12px; }
+.service-qr-cta { white-space: nowrap; }
+
+/* 二维码放大弹窗 */
+.qr-modal {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(0, 0, 0, 0.82); backdrop-filter: blur(8px);
+  align-items: center; justify-content: center; padding: 24px;
+}
+.qr-modal.open { display: flex; }
+.qr-modal-box {
+  position: relative; width: 100%; max-width: 340px; text-align: center;
+  background: #fff; border-radius: 20px; padding: 30px 26px 22px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  animation: qr-pop .22s ease;
+}
+@keyframes qr-pop { from { transform: scale(.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.qr-modal-box img { display: block; width: 100%; height: auto; }
+.qr-modal-box p { margin: 16px 0 6px; font-size: 17px; font-weight: 800; color: #14141c; }
+.qr-modal-box small { display: block; font-size: 12px; color: #6b7280; line-height: 1.6; }
+.qr-modal-close {
+  position: absolute; top: 8px; right: 12px; width: 32px; height: 32px;
+  border: 0; background: transparent; color: #6b7280; font-size: 26px;
+  line-height: 1; cursor: pointer; border-radius: 8px;
+}
+.qr-modal-close:hover { background: rgba(0, 0, 0, 0.06); color: #111; }
+@media (prefers-reduced-motion: reduce) { .qr-modal-box { animation: none; } }
 
 /* ── 详情页 ───────────────────────────────── */
 .inner-page { padding-top: 40px; }
@@ -637,7 +675,9 @@ main { padding-top: 64px; min-height: 70vh; }
   .hot-scroll, .spotlight-grid, .contact { padding-left: 16px; padding-right: 16px; }
   .spotlight-card { min-height: 340px; }
   .contact-card { padding: 22px; gap: 20px; }
-  .contact-badge { flex-basis: 100%; }
+  .service-qr-wrap { flex-basis: 100%; max-width: 200px; margin: 0 auto; }
+  .service-card { flex-direction: column; align-items: flex-start; }
+  .service-qr-cta { align-self: flex-start; }
   .fab { left: 16px; bottom: 22px; padding: 11px 16px; }
   .to-top { bottom: 20px; right: 20px; }
   .detail-info h1 { font-size: 28px; }

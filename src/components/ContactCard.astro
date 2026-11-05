@@ -1,31 +1,39 @@
 ---
-// 官方渠道区块：沿用海报墙的「联系卡片」视觉，内容保持本站的真实性声明
+// 首页客服卡片：二维码为主视觉，沿用海报墙的「联系卡片」布局
 import { featuredGames } from '../data/games';
+import { asset } from '../utils/asset';
 
-const first = featuredGames[0];
-const officialUrl = first?.externalUrl ?? 'https://lzgzb.com';
-const officialHost = new URL(officialUrl).hostname;
+const qr = asset('images/service-qr.png');
 ---
 
-<section class="contact" id="official">
+<section class="contact" id="service">
   <div class="contact-card">
-    <div class="contact-badge">
-      <div class="big">🎮</div>
-      <div class="cap">认准官方渠道<br />本站不代收任何费用</div>
+    <div class="service-qr-wrap">
+      <button class="service-qr-btn" type="button" data-qr-open aria-label="放大查看客服二维码">
+        <img src={qr} alt="客服微信公众号二维码，扫码后按指引联系客服" width="290" height="290" loading="lazy" decoding="async" />
+        <span class="service-qr-zoom">🔍 点击放大</span>
+      </button>
+      <div class="service-qr-cap">微信扫一扫 · 联系客服</div>
     </div>
+
     <div class="contact-info">
-      <h3>想玩哪款？从官方渠道进入</h3>
-      <p>本站为独立测评介绍站，不提供下载、不代收费用。游戏下载、开服与版本公告请以官网为准；评分均为「待定」，本站未做实测。</p>
-      <div class="wechat-row">
-        <span class="wechat-label">主推官网</span>
-        <span class="wechat-id" data-official-host>{officialHost}</span>
-        <button class="btn-copy" type="button" data-copy-host={officialUrl}>复制</button>
-      </div>
-      <div class="official-links">
+      <div class="service-eyebrow">💬 CUSTOMER SERVICE</div>
+      <h3>有问题？扫码联系客服</h3>
+      <p>
+        游戏下载与安装、开服活动、礼包资讯、攻略纠错与投稿，都可以扫码关注公众号后按指引联系客服。
+        本站为独立测评介绍站，<strong>不代收任何费用，也不处理充值与账号问题</strong>；版本、活动与收费信息请以游戏官方公告为准。
+      </p>
+      <ul class="service-list">
+        <li>✅ 下载 / 安装指引</li>
+        <li>✅ 开服 / 活动 / 礼包咨询</li>
+        <li>✅ 攻略纠错与内容投稿</li>
+      </ul>
+      <div class="official-links service-mini-links">
+        <span class="mini-label">游戏官网</span>
         {featuredGames.map((g) => (
           <a class="official-link" href={g.externalUrl} target="_blank" rel="noopener noreferrer">
             {g.icon && <img src={g.icon} alt="" width="28" height="28" loading="lazy" decoding="async" />}
-            <span>{g.title} 官网 ↗</span>
+            <span>{g.title} ↗</span>
           </a>
         ))}
       </div>
@@ -33,32 +41,12 @@ const officialHost = new URL(officialUrl).hostname;
   </div>
 </section>
 
-<script>
-  document.querySelectorAll<HTMLButtonElement>('[data-copy-host]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const value = btn.dataset.copyHost ?? '';
-      const done = () => {
-        btn.textContent = '已复制';
-        btn.classList.add('copied');
-        document.dispatchEvent(new CustomEvent('toast', { detail: `官网地址已复制：${value}` }));
-        setTimeout(() => { btn.textContent = '复制'; btn.classList.remove('copied'); }, 1800);
-      };
-      if (navigator.clipboard?.writeText) {
-        navigator.clipboard.writeText(value).then(done).catch(() => fallbackCopy(value, done));
-      } else {
-        fallbackCopy(value, done);
-      }
-    });
-  });
-  function fallbackCopy(value: string, done: () => void) {
-    const ta = document.createElement('textarea');
-    ta.value = value;
-    ta.style.position = 'fixed';
-    ta.style.opacity = '0';
-    document.body.appendChild(ta);
-    ta.select();
-    try { document.execCommand('copy'); done(); }
-    catch { document.dispatchEvent(new CustomEvent('toast', { detail: '请手动复制：' + value })); }
-    document.body.removeChild(ta);
-  }
-</script>
+<!-- 二维码放大弹窗 -->
+<div class="qr-modal" data-qr-modal role="dialog" aria-modal="true" aria-label="客服二维码">
+  <div class="qr-modal-box">
+    <button class="qr-modal-close" type="button" data-qr-close aria-label="关闭二维码弹窗">×</button>
+    <img src={qr} alt="客服微信公众号二维码（放大）" width="290" height="290" />
+    <p>微信扫一扫 · 联系客服</p>
+    <small>长按二维码可保存图片或识别；请勿向任何私人账号转账</small>
+  </div>
+</div>

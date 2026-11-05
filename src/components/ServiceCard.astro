@@ -1,0 +1,41 @@
+---
+// 详情页 / 攻略页底部的紧凑客服条
+import { featuredGames } from '../data/games';
+import { asset } from '../utils/asset';
+
+const qr = asset('images/service-qr.png');
+---
+
+<section id="service" class="service-block">
+  <div class="mp-card official-card service-card">
+    <button class="service-qr-mini" type="button" data-qr-open aria-label="放大查看客服二维码">
+      <img src={qr} alt="客服微信公众号二维码" width="290" height="290" loading="lazy" decoding="async" />
+    </button>
+    <div class="mp-text">
+      <strong>💬 需要帮助？扫码联系客服</strong>
+      <small>
+        下载安装、开服活动、礼包资讯与攻略纠错，扫码关注公众号后按指引咨询。
+        本站不代收费用、不处理充值与账号问题，具体以游戏官方公告为准。
+      </small>
+      <div class="official-links service-mini-links">
+        {featuredGames.map((g) => (
+          <a class="official-link" href={g.externalUrl} target="_blank" rel="noopener noreferrer">
+            {g.icon && <img src={g.icon} alt="" width="28" height="28" loading="lazy" decoding="async" />}
+            <span>{g.title} 官网 ↗</span>
+          </a>
+        ))}
+      </div>
+    </div>
+    <button class="btn-ghost service-qr-cta" type="button" data-qr-open>查看二维码 ↗</button>
+  </div>
+</section>
+
+<!-- 二维码放大弹窗 -->
+<div class="qr-modal" data-qr-modal role="dialog" aria-modal="true" aria-label="客服二维码">
+  <div class="qr-modal-box">
+    <button class="qr-modal-close" type="button" data-qr-close aria-label="关闭二维码弹窗">×</button>
+    <img src={qr} alt="客服微信公众号二维码（放大）" width="290" height="290" />
+    <p>微信扫一扫 · 联系客服</p>
+    <small>长按二维码可保存图片或识别；请勿向任何私人账号转账</small>
+  </div>
+</div>
