@@ -1,6 +1,5 @@
 ---
 // 详情页 / 攻略页底部的紧凑客服条
-import { featuredGames } from '../data/games';
 import { asset } from '../utils/asset';
 
 const qr = asset('images/service-qr.png');
@@ -17,14 +16,6 @@ const qr = asset('images/service-qr.png');
         下载安装、开服活动、礼包资讯与攻略纠错，扫码关注公众号后按指引咨询。
         本站不代收费用、不处理充值与账号问题，具体以游戏官方公告为准。
       </small>
-      <div class="official-links service-mini-links">
-        {featuredGames.map((g) => (
-          <a class="official-link" href={g.externalUrl} target="_blank" rel="noopener noreferrer">
-            {g.icon && <img src={g.icon} alt="" width="28" height="28" loading="lazy" decoding="async" />}
-            <span>{g.title} 官网 ↗</span>
-          </a>
-        ))}
-      </div>
     </div>
     <button class="btn-ghost service-qr-cta" type="button" data-qr-open>查看二维码 ↗</button>
   </div>

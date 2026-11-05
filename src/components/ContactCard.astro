@@ -1,6 +1,5 @@
 ---
 // 首页客服卡片：二维码为主视觉，沿用海报墙的「联系卡片」布局
-import { featuredGames } from '../data/games';
 import { asset } from '../utils/asset';
 
 const qr = asset('images/service-qr.png');
@@ -28,15 +27,6 @@ const qr = asset('images/service-qr.png');
         <li>✅ 开服 / 活动 / 礼包咨询</li>
         <li>✅ 攻略纠错与内容投稿</li>
       </ul>
-      <div class="official-links service-mini-links">
-        <span class="mini-label">游戏官网</span>
-        {featuredGames.map((g) => (
-          <a class="official-link" href={g.externalUrl} target="_blank" rel="noopener noreferrer">
-            {g.icon && <img src={g.icon} alt="" width="28" height="28" loading="lazy" decoding="async" />}
-            <span>{g.title} ↗</span>
-          </a>
-        ))}
-      </div>
     </div>
   </div>
 </section>

@@ -43,7 +43,7 @@
 │   │   ├── GuideCard.astro        # 竖版攻略海报卡
 │   │   ├── HotScroll.astro        # 热门横滑 4:5 卡片
 │   │   ├── FeaturedSpotlight.astro# 主推双大图
-│   │   ├── ContactCard.astro      # 首页客服卡（二维码 + 放大弹窗 + 官网直达）
+│   │   ├── ContactCard.astro      # 首页客服卡（二维码 + 放大弹窗）
 │   │   └── ServiceCard.astro      # 详情页 / 攻略页紧凑客服条
 │   └── pages/
 │       ├── index.astro           # 首页（沉浸 Hero + 主推 + 热门横滑 + 全部游戏 + 攻略 + 客服）
@@ -136,7 +136,7 @@ node scripts/build-posters.mjs   # 上述素材 → 竖版海报（新增游戏�
 | `rating` | number \| null | 是 | 评分；未实测填 `null`（显示「待定」） |
 | `price` | string | 是 | 现价文案（如「免费下载」） |
 | `developer` | string | 否 | 信息来源 / 运营方（详情页展示） |
-| `externalUrl` | string | 是 | 官网地址（弹窗「前往官网」与客服卡片底部官网直达使用） |
+| `externalUrl` | string | 是 | 官网地址（主推卡 / 预览弹窗「前往官网」与详情页下载按钮使用） |
 | `screenshots` | string[] | 否 | 截图画廊（空数组 → 隐藏） |
 
 ### 添加攻略
