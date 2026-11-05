@@ -1,0 +1,69 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import MiniProgramEntry from '../../components/MiniProgramEntry.astro';
+import { games } from '../../data/games';
+
+export function getStaticPaths() {
+  return games.map((g) => ({ params: { slug: g.slug }, props: { game: g } }));
+}
+
+const { game } = Astro.props;
+const ratingText = game.rating === null ? '待定' : game.rating.toFixed(1);
+const BASE = import.meta.env.BASE_URL;
+const hasGallery = Array.isArray(game.screenshots) && game.screenshots.length > 0;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'VideoGame',
+  name: game.title,
+  description: game.description,
+  genre: game.category,
+  url: new URL(`${BASE}games/${game.slug}`, Astro.site ?? Astro.url).href,
+  image: new URL(game.cover, Astro.site ?? Astro.url).href,
+  offers: { '@type': 'Offer', price: game.price, availability: 'https://schema.org/InStock' },
+};
+---
+
+<BaseLayout title={game.title} description={game.description} ogImage={game.cover}>
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+  <div class="container">
+    <a href={`${BASE}library`} style="display:inline-block;margin:var(--sp-5) 0 var(--sp-2);color:var(--c-accent);">← 返回游戏库</a>
+
+    <article class="detail">
+      <div class="detail-cover">
+        <img src={game.cover} alt={`${game.title} 封面`} width="480" height="270" />
+      </div>
+
+      <div class="detail-info">
+        <h1>{game.title}</h1>
+        <div class="card-meta">
+          <span>{game.category}</span>
+          <span class="rating">★ {ratingText}</span>
+          <span>在玩 {game.players}</span>
+        </div>
+
+        <div class="price-row">
+          <span class="price">{game.price}</span>
+          {game.originalPrice && <span class="price-old">{game.originalPrice}</span>}
+        </div>
+
+        <div class="kv"><span class="k">平台</span><span>{game.platform.join(' / ')}</span></div>
+        <div class="kv"><span class="k">标签</span><span>{game.tags.join('、')}</span></div>
+        <div class="kv"><span class="k">简介</span><span>{game.description}</span></div>
+
+        <a class="btn-download" href={game.externalUrl} target="_blank" rel="noopener">前往下载 / 官网</a>
+
+        {hasGallery && (
+          <div class="gallery">
+            {game.screenshots.map((s) => (
+              <img src={s} alt={`${game.title} 截图`} loading="lazy" width="480" height="270" />
+            ))}
+          </div>
+        )}
+      </div>
+    </article>
+
+    <MiniProgramEntry />
+  </div>
+</BaseLayout>

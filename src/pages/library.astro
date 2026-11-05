@@ -1,0 +1,11 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import GameLibrary from '../components/GameLibrary.astro';
+
+const title = '游戏库';
+const description = '按分类、角标与关键词筛选全部手游，发现适合你的那一款。';
+---
+
+<BaseLayout title={title} description={description}>
+  <GameLibrary />
+</BaseLayout>

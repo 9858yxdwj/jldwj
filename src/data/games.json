@@ -1,0 +1,121 @@
+[
+  {
+    "id": "g1",
+    "slug": "placeholder-legend",
+    "title": "幻境传说（示例）",
+    "category": "角色扮演",
+    "badge": "pick",
+    "cover": "/images/covers/placeholder-legend.svg",
+    "players": "120万+",
+    "description": "一款示例性质的开放世界 RPG，主打剧情演出与角色养成。本数据均为占位内容，请勿当真，正式上线前请替换为可核实信息。",
+    "platform": ["iOS", "Android", "PC"],
+    "tags": ["开放世界", "剧情向", "养成"],
+    "rating": 8.6,
+    "price": "免费",
+    "originalPrice": "",
+    "externalUrl": "https://example.com/download/placeholder-legend",
+    "screenshots": [
+      "/images/shots/shot-1.svg",
+      "/images/shots/shot-2.svg",
+      "/images/shots/shot-3.svg"
+    ]
+  },
+  {
+    "id": "g2",
+    "slug": "pixel-tactics",
+    "title": "像素征途（示例）",
+    "category": "策略战棋",
+    "badge": "new",
+    "cover": "/images/covers/pixel-tactics.svg",
+    "players": "38万+",
+    "description": "复古像素风的回合制战棋，强调地形与兵种克制。占位数据，机制说明以官方为准。",
+    "platform": ["iOS", "Android"],
+    "tags": ["像素", "回合制", "战棋"],
+    "rating": 8.1,
+    "price": "¥30",
+    "originalPrice": "¥45",
+    "externalUrl": "https://example.com/download/pixel-tactics",
+    "screenshots": [
+      "/images/shots/shot-1.svg",
+      "/images/shots/shot-2.svg"
+    ]
+  },
+  {
+    "id": "g3",
+    "slug": "card-chronicle",
+    "title": "卡牌编年史（示例）",
+    "category": "卡牌",
+    "badge": "pick",
+    "cover": "/images/covers/card-chronicle.svg",
+    "players": "210万+",
+    "description": "收集养成类卡牌对战，剧情与 PVP 双线。占位数据，掉落率与礼包以官方公告为准。",
+    "platform": ["iOS", "Android", "PC"],
+    "tags": ["收集", "PVP", "养成"],
+    "rating": 8.9,
+    "price": "免费",
+    "originalPrice": "",
+    "externalUrl": "https://example.com/download/card-chronicle",
+    "screenshots": [
+      "/images/shots/shot-1.svg",
+      "/images/shots/shot-2.svg",
+      "/images/shots/shot-3.svg"
+    ]
+  },
+  {
+    "id": "g4",
+    "slug": "neon-shooter",
+    "title": "霓虹突袭（示例）",
+    "category": "射击",
+    "badge": "hot",
+    "cover": "/images/covers/neon-shooter.svg",
+    "players": "95万+",
+    "description": "快节奏科幻射击，主打枪械改装与 Roguelike 关卡。占位数据，平衡性以实测为准。",
+    "platform": ["iOS", "Android"],
+    "tags": ["科幻", "Roguelike", "射击"],
+    "rating": 7.8,
+    "price": "免费",
+    "originalPrice": "",
+    "externalUrl": "https://example.com/download/neon-shooter",
+    "screenshots": [
+      "/images/shots/shot-1.svg",
+      "/images/shots/shot-3.svg"
+    ]
+  },
+  {
+    "id": "g5",
+    "slug": "idle-tycoon",
+    "title": "放置商栈（示例）",
+    "category": "模拟经营",
+    "badge": "",
+    "cover": "/images/covers/idle-tycoon.svg",
+    "players": "60万+",
+    "description": "放置类经营游戏，挂机收菜与链锁产线。占位数据，收益模型以官方为准。",
+    "platform": ["iOS", "Android"],
+    "tags": ["放置", "经营", "挂机"],
+    "rating": null,
+    "price": "免费",
+    "originalPrice": "",
+    "externalUrl": "https://example.com/download/idle-tycoon",
+    "screenshots": []
+  },
+  {
+    "id": "g6",
+    "slug": "realm-strategy",
+    "title": "王权纷争（示例）",
+    "category": "策略战棋",
+    "badge": "new",
+    "cover": "/images/covers/realm-strategy.svg",
+    "players": "45万+",
+    "description": "联盟向 SLG，强调资源调度与跨服战。占位数据，战力数值以官方为准。",
+    "platform": ["iOS", "Android", "PC"],
+    "tags": ["SLG", "联盟", "跨服"],
+    "rating": 8.3,
+    "price": "免费",
+    "originalPrice": "",
+    "externalUrl": "https://example.com/download/realm-strategy",
+    "screenshots": [
+      "/images/shots/shot-2.svg",
+      "/images/shots/shot-3.svg"
+    ]
+  }
+]

@@ -1,0 +1,28 @@
+---
+import GameCard from './GameCard.astro';
+import { games } from '../data/games';
+
+interface Props {
+  /** 最多取几款，默认 3 */
+  limit?: number;
+}
+const { limit = 3 } = Astro.props;
+
+// 取 badge==='pick' 的精品，最多 limit 款；不足则补齐其它游戏
+const picks = games.filter((g) => g.badge === 'pick').slice(0, limit);
+const rest = games.filter((g) => g.badge !== 'pick');
+const featured = [...picks, ...rest].slice(0, limit);
+const BASE = import.meta.env.BASE_URL;
+---
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <h2>精品推荐</h2>
+      <a href={`${BASE}library`}>查看全部 →</a>
+    </div>
+    <div class="grid">
+      {featured.map((g) => <GameCard game={g} />)}
+    </div>
+  </div>
+</section>

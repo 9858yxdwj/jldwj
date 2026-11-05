@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FeaturedGrid from '../components/FeaturedGrid.astro';
+import MiniProgramEntry from '../components/MiniProgramEntry.astro';
+import { games } from '../data/games';
+
+const total = games.length;
+---
+
+<BaseLayout>
+  <section class="hero">
+    <div class="container">
+      <h1>真实、克制、结论先行的手游测评</h1>
+      <p>收录 {total} 款手游的精品推荐与游戏库。所有数据以官方为准，未核实信息均明确标注，绝不编造。</p>
+    </div>
+  </section>
+
+  <FeaturedGrid limit={3} />
+
+  <MiniProgramEntry />
+</BaseLayout>

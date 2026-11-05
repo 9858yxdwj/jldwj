@@ -1,0 +1,68 @@
+# 一键部署到 GitHub Pages（Astro 静态站）
+# 用法：
+#   1) 把仓库推到 GitHub（默认监听 main 分支的 push；也可在 Actions 页手动 Run workflow）
+#   2) 仓库 Settings → Pages → Source 选择「GitHub Actions」
+#   3) 推送后自动构建并发布；base/site 由 GITHUB_REPOSITORY 自动推导，项目页也能直接用
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# 赋予 Pages 发布所需权限
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 允许一个并发部署，跳过在正在进行中的旧部署队列
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        # GITHUB_REPOSITORY=owner/repo 时，astro.config 自动设置 base=/repo/ 与 site
+        run: npm run build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      # 部署后向百度主动推送 sitemap（提升收录）
+      # 仅在仓库配置了 BAIDU_TOKEN secret 时执行；未配置则自动跳过、不报错。
+      - name: 百度 sitemap 主动推送
+        if: ${{ secrets.BAIDU_TOKEN != '' }}
+        env:
+          BAIDU_SITE: ${{ secrets.BAIDU_SITE }}
+          BAIDU_TOKEN: ${{ secrets.BAIDU_TOKEN }}
+          SITE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: node scripts/baidu-push.mjs

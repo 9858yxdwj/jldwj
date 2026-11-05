@@ -1,0 +1,76 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** 详情页等可传具体 URL，用于 OG / canonical */
+  ogImage?: string;
+}
+
+const {
+  title = '手游测评站',
+  description = '手游测评与攻略站：真实数据、结论先行的精品推荐与游戏库。',
+  ogImage,
+} = Astro.props;
+
+const siteName = '手游测评站';
+const fullTitle = title === siteName ? title : `${title} · ${siteName}`;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).href;
+const ogImg = ogImage
+  ? new URL(ogImage, Astro.site ?? Astro.url).href
+  : undefined;
+// base 感知：项目页下内部链接需带 /<repo>/ 前缀
+const BASE = import.meta.env.BASE_URL;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    {ogImg && <meta property="og:image" content={ogImg} />}
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- 结构化数据（站点级） -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: siteName,
+      url: (Astro.site ?? Astro.url).href,
+    })} />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container">
+        <a class="brand" href={BASE}><span>游</span>戏测评站</a>
+        <nav class="nav">
+          <a href={BASE}>首页</a>
+          <a href={`${BASE}library`}>游戏库</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>本站内容仅供參考，数据以官方为准。非实测，未核实信息已标注。</p>
+      </div>
+    </footer>
+  </body>
+</html>
