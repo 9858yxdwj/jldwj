@@ -58,9 +58,9 @@ jobs:
         uses: actions/deploy-pages@v4
 
       # 部署后向百度主动推送 sitemap（提升收录）
-      # 仅在仓库配置了 BAIDU_TOKEN secret 时执行；未配置则自动跳过、不报错。
+      # 脚本内部会在未配置 BAIDU_TOKEN 时自动跳过（exit 0），因此无需 if 守卫。
+      # 注意：GitHub Actions 的 if: 条件中不允许使用 secrets 上下文，否则工作流校验失败。
       - name: 百度 sitemap 主动推送
-        if: ${{ secrets.BAIDU_TOKEN != '' }}
         env:
           BAIDU_SITE: ${{ secrets.BAIDU_SITE }}
           BAIDU_TOKEN: ${{ secrets.BAIDU_TOKEN }}
