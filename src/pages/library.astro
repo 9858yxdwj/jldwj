@@ -1,11 +1,22 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import GameLibrary from '../components/GameLibrary.astro';
+import PosterGrid from '../components/PosterGrid.astro';
+import ContactCard from '../components/ContactCard.astro';
+import { games } from '../data/games';
 
 const title = '游戏库';
-const description = '按分类、角标与关键词筛选全部手游，发现适合你的那一款。';
+const description = '按分类与关键词筛选全部手游，点击卡片查看详情或快速预览。主推《桃园将帅录》《小小屠龙》。';
 ---
 
 <BaseLayout title={title} description={description}>
-  <GameLibrary />
+  <div class="inner-page">
+    <PosterGrid
+      games={games}
+      title="🎯 游戏库"
+      badge="ALL"
+      sub="点击卡片查看详情，或点「快速预览」先看个大概"
+      showFilters={true}
+    />
+    <ContactCard />
+  </div>
 </BaseLayout>

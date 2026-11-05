@@ -1,6 +1,6 @@
 # 手游测评 / 攻略站（Astro 静态站）
 
-真实、克制、结论先行的手游测评与攻略站。基于 **Astro** 构建的零服务器静态站点，SEO 友好，可一键部署到 GitHub Pages。
+**游戏海报墙风格**的手游测评与攻略站：纯黑沉浸底、珊瑚红→金黄渐变、毛玻璃固定导航、竖版海报卡、胶囊筛选与快速预览弹窗。基于 **Astro** 构建的零服务器静态站点，SEO 友好，一键部署到 GitHub Pages。
 
 > 📌 本期主推 **《桃园将帅录》** 与 **《小小屠龙》**。游戏信息、封面与截图整理自各游戏官方公开渠道；**本站未做实测**，评分均为「待定」，未核实信息已明确标注。图片版权归原运营方所有，本站仅作介绍用途。
 
@@ -8,9 +8,13 @@
 
 - [Astro](https://astro.build/)（静态输出 `output: 'static'`）
 - 数据驱动：`src/data/games.json`（游戏）+ `src/content/guides/*.md`（攻略，Content Collections）
-- 图片管线：`scripts/build-images.mjs`（官方素材 → 统一 webp 压缩/尺寸归一）+ `src/utils/asset.ts`（base 感知路径）
-- 结构化数据：游戏详情 `VideoGame`、攻略 `Article`、全站面包屑 `BreadcrumbList`、站点 `WebSite`
+- 图片管线：
+  - `scripts/build-images.mjs`：官方素材 → 统一 webp 压缩
+  - `scripts/build-posters.mjs`：官方横图 + 图标 → 3:4 竖版海报（模糊背景 + 清晰主图 + 底部暗渐变）
+  - `src/utils/asset.ts`：base 感知路径，保证项目页下资源不 404
+- 结构化数据：`VideoGame` / `Article` / `BreadcrumbList` / `WebSite`
 - SEO：`robots.txt` 端点、sitemap、canonical、OG/Twitter、自定义 404
+- 交互：纯前端胶囊筛选 + 关键词搜索 + 快速预览弹窗 + 复制官网 + 悬浮按钮 / Toast
 - 部署：GitHub Actions 自动构建并发布到 GitHub Pages
 - 收录：可选百度资源平台主动推送（需配置密钥）
 
@@ -19,11 +23,11 @@
 ```
 .
 ├── astro.config.mjs          # 站点配置（site/base 按仓库名自动推导）
-├── package.json
-├── tsconfig.json
+├── package.json / tsconfig.json
 ├── .github/workflows/deploy.yml   # 一键部署工作流
 ├── scripts/
-│   ├── build-images.mjs           # 从官方素材生成 public/images 下的 webp
+│   ├── build-images.mjs           # 官方素材 → public/images 下的 webp
+│   ├── build-posters.mjs          # 官方横图 → 竖版海报 public/images/posters/
 │   └── baidu-push.mjs             # 部署后百度 sitemap 推送（无密钥则跳过）
 ├── src/
 │   ├── data/games.ts              # 类型化 schema + 主推/分类派生 + base 感知图片路径
@@ -31,23 +35,26 @@
 │   ├── utils/asset.ts             # public 资源 base 感知路径工具
 │   ├── content.config.ts          # 攻略集合 schema
 │   ├── content/guides/*.md        # 攻略文章（Markdown）
-│   ├── styles/global.css          # design tokens + 响应式 + 暗色主题
-│   ├── layouts/BaseLayout.astro   # SEO head、导航、页脚、来源声明
+│   ├── styles/global.css          # 海报墙 design tokens + 组件样式 + 响应式
+│   ├── layouts/BaseLayout.astro   # 固定毛玻璃导航 / 全局搜索 / 页脚 / 悬浮交互
 │   ├── components/
-│   │   ├── FeaturedSpotlight.astro # 首页主推大图（官方 banner）
-│   │   ├── FeaturedGrid.astro      # 更多收录卡片
-│   │   ├── GameCard.astro / GameLibrary.astro
-│   │   ├── GuideCard.astro
-│   │   └── OfficialChannels.astro  # 主推游戏官网入口
+│   │   ├── PosterGrid.astro       # 海报网格 + 胶囊筛选 + 搜索 + 快速预览弹窗
+│   │   ├── GameCard.astro         # 竖版游戏海报卡
+│   │   ├── GuideCard.astro        # 竖版攻略海报卡
+│   │   ├── HotScroll.astro        # 热门横滑 4:5 卡片
+│   │   ├── FeaturedSpotlight.astro# 主推双大图
+│   │   ├── ContactCard.astro      # 官方渠道卡片（复制官网）
+│   │   └── OfficialChannels.astro # 详情页紧凑官方入口
 │   └── pages/
-│       ├── index.astro           # 首页（Hero + 主推 + 更多收录 + 最新攻略）
-│       ├── library.astro         # 游戏库（前端筛选，?cat= 预筛）
+│       ├── index.astro           # 首页（沉浸 Hero + 主推 + 热门横滑 + 全部游戏 + 攻略 + 官方渠道）
+│       ├── library.astro         # 游戏库（海报网格 + 筛选，支持 ?cat= / ?kw= 预筛）
 │       ├── games/[slug].astro    # 游戏详情页
 │       ├── guides/index.astro    # 攻略库
 │       ├── guides/[...slug].astro# 攻略详情页
 │       ├── robots.txt.ts / 404.astro
 └── public/images/
     ├── covers/    # 8 张 16:9 封面
+    ├── posters/   # 8 张 3:4 竖版海报（海报墙卡片主视觉）
     ├── banners/   # 2 张主推大图
     ├── icons/     # 8 张游戏图标
     └── shots/     # 9 张官方游戏截图
@@ -84,11 +91,14 @@ GITHUB_REPOSITORY=<owner>/<repo> npm run build
 | [《小小屠龙》手游官网](https://xxtlxz.cn) | 小小屠龙游戏内截图 |
 | [《桃园：将帅录》手游官网](https://lzgzb.com) | 桃园将帅录游戏内截图 |
 
-重新生成图片（源素材缺失时会按 `SOURCE_URLS` 自动重新抓取）：
+重新生成图片：
 
 ```bash
-node scripts/build-images.mjs
+node scripts/build-images.mjs    # 官方素材 → 封面 / 横图 / 图标 / 截图
+node scripts/build-posters.mjs   # 上述素材 → 竖版海报（新增游戏后务必重跑）
 ```
+
+> 竖版海报由官方宣传图二次排版生成（模糊背景 + 原图 + 图标），**非游戏官方原图**，页脚已声明。新增游戏时，只要在 `games.json` 里写了 `cover`，`build-posters.mjs` 就会按 `slug` 自动生成 `/images/posters/<slug>.webp`；`src/data/games.ts` 会自动推导该路径，无需手写 `poster` 字段。
 
 > 原始抓取素材放在 `.assets-src/`（已加入 `.gitignore`，不入库）。**所有 public 资源路径必须经 `asset()` 转换**，否则 GitHub Pages 项目页下会 404。
 
@@ -110,19 +120,20 @@ node scripts/build-images.mjs
 
 | 字段 | 类型 | 必填 | 说明 |
 | --- | --- | --- | --- |
-| `slug` | string | 是 | URL 标识，唯一 |
-| `title` / `category` | string | 是 | 游戏名 / 分类（用于筛选） |
-| `badge` | `'pick'\|'new'\|'hot'\|''` | 是 | `pick` = 主推（首页大图展示） |
+| `slug` | string | 是 | URL 标识，唯一；同时决定海报文件名 |
+| `title` / `category` | string | 是 | 游戏名 / 分类（用于胶囊筛选） |
+| `badge` | `'pick'\|'new'\|'hot'\|''` | 是 | `pick` = 主推（首页大图 + 蓝色角标） |
 | `cover` | string | 是 | 16:9 封面，public 下绝对路径 |
+| `poster` | string | 否 | 3:4 竖版海报；缺省自动取 `/images/posters/<slug>.webp` |
 | `hero` | string | 否 | 主推大图 banner，`badge='pick'` 时首页展示 |
 | `icon` | string | 否 | 1:1 游戏图标 |
 | `status` | string | 是 | 运营/规模状态文案；**不编造在线人数**，未知填「以官方为准」 |
-| `description` | string | 是 | 结论先行的简介 |
-| `platform` / `tags` | string[] | 是 | 平台 / 玩法标签 |
+| `description` | string | 是 | 结论先行的简介（海报卡 2 行截断） |
+| `platform` / `tags` | string[] | 是 | 平台 / 玩法标签（参与搜索） |
 | `rating` | number \| null | 是 | 评分；未实测填 `null`（显示「待定」） |
 | `price` | string | 是 | 现价文案（如「免费下载」） |
 | `developer` | string | 否 | 信息来源 / 运营方（详情页展示） |
-| `externalUrl` | string | 是 | 官网地址 |
+| `externalUrl` | string | 是 | 官网地址（弹窗「前往官网」与官方渠道卡片使用） |
 | `screenshots` | string[] | 否 | 截图画廊（空数组 → 隐藏） |
 
 ### 添加攻略
@@ -170,5 +181,6 @@ date: 2026-11-05
 
 - 本站为独立测评介绍站，非游戏官方站点；不代收任何费用。
 - 内容与图片整理自官方公开渠道，图片版权归原运营方所有；如需商用请先取得授权。
+- 竖版海报为官方宣传图的二次排版示意图，非官方原图。
 - 数据以官方公告为准；未核实信息均明确标注，绝不编造在线人数、评分与实测结论。
 - 测评结论先行，优劣分明；涉及账号、付费等高风险操作先提示确认。

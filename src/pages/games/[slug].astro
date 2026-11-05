@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import OfficialChannels from '../../components/OfficialChannels.astro';
 import { games } from '../../data/games';
+import { asset } from '../../utils/asset';
 
 export function getStaticPaths() {
   return games.map((g) => ({ params: { slug: g.slug }, props: { game: g } }));
@@ -11,6 +12,7 @@ const { game } = Astro.props;
 const ratingText = game.rating === null ? '待定' : game.rating.toFixed(1);
 const BASE = import.meta.env.BASE_URL;
 const hasGallery = Array.isArray(game.screenshots) && game.screenshots.length > 0;
+const poster = game.poster ?? asset(`/images/posters/${game.slug}.webp`);
 const pageUrl = new URL(`${BASE}games/${game.slug}`, Astro.site ?? Astro.url).href;
 
 const jsonLd = {
@@ -38,17 +40,18 @@ const breadcrumbLd = {
   <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} />
 
-  <div class="container">
+  <div class="container inner-page">
     <nav class="breadcrumb" aria-label="面包屑">
       <a href={BASE}>首页</a> / <a href={`${BASE}library`}>游戏库</a> / <span>{game.title}</span>
     </nav>
 
     <article class="detail">
       <div class="detail-cover">
-        <img src={game.cover} alt={`${game.title} 官方宣传图`} decoding="async" width="960" height="540" />
+        <img src={poster} alt={`${game.title} 竖版海报`} decoding="async" width="720" height="960" />
       </div>
 
       <div class="detail-info">
+        <img class="detail-banner" src={game.cover} alt={`${game.title} 官方宣传图`} decoding="async" width="960" height="540" />
         <h1>{game.title}</h1>
         <div class="card-meta">
           <span>{game.category}</span>
@@ -72,7 +75,7 @@ const breadcrumbLd = {
         )}
         <p class="detail-note">本站未对游戏做实测，评分显示「待定」；平台、收费与版本内容均以官方公告为准。</p>
 
-        <a class="btn-download" href={game.externalUrl} target="_blank" rel="noopener">前往下载 / 官网</a>
+        <a class="btn-download" href={game.externalUrl} target="_blank" rel="noopener">前往下载 / 官网 ↗</a>
 
         {hasGallery && (
           <div class="gallery">

@@ -8,6 +8,7 @@
 // category       string           是     分类（三国策略/传奇/武侠/科幻…）
 // badge          string           否     角标：'pick'主推 | 'new'新游 | 'hot'热门 | ''无
 // cover          string           是     封面图路径（16:9 webp，public 下）
+// poster         string           否     竖版海报（3:4 webp）；缺省自动取 /images/posters/<slug>.webp
 // hero           string           否     主推大图 banner（badge='pick' 时首页展示）
 // icon           string           否     游戏图标（1:1 webp，详情页/主推区展示）
 // status         string           是     运营/规模状态文案（如 "三端互通"；不编造在线人数，未知填「官方未公布」）
@@ -31,6 +32,7 @@ export interface Game {
   category: string;
   badge: 'pick' | 'new' | 'hot' | '';
   cover: string;
+  poster?: string;
   hero?: string;
   icon?: string;
   status: string;
@@ -50,6 +52,7 @@ export interface Game {
 export const games: Game[] = (gamesData as unknown as Game[]).map((g) => ({
   ...g,
   cover: asset(g.cover),
+  poster: asset(g.poster ?? `/images/posters/${g.slug}.webp`),
   hero: g.hero ? asset(g.hero) : undefined,
   icon: g.icon ? asset(g.icon) : undefined,
   screenshots: (g.screenshots ?? []).map(asset),

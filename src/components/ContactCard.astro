@@ -1,0 +1,64 @@
+---
+// 官方渠道区块：沿用海报墙的「联系卡片」视觉，内容保持本站的真实性声明
+import { featuredGames } from '../data/games';
+
+const first = featuredGames[0];
+const officialUrl = first?.externalUrl ?? 'https://lzgzb.com';
+const officialHost = new URL(officialUrl).hostname;
+---
+
+<section class="contact" id="official">
+  <div class="contact-card">
+    <div class="contact-badge">
+      <div class="big">🎮</div>
+      <div class="cap">认准官方渠道<br />本站不代收任何费用</div>
+    </div>
+    <div class="contact-info">
+      <h3>想玩哪款？从官方渠道进入</h3>
+      <p>本站为独立测评介绍站，不提供下载、不代收费用。游戏下载、开服与版本公告请以官网为准；评分均为「待定」，本站未做实测。</p>
+      <div class="wechat-row">
+        <span class="wechat-label">主推官网</span>
+        <span class="wechat-id" data-official-host>{officialHost}</span>
+        <button class="btn-copy" type="button" data-copy-host={officialUrl}>复制</button>
+      </div>
+      <div class="official-links">
+        {featuredGames.map((g) => (
+          <a class="official-link" href={g.externalUrl} target="_blank" rel="noopener noreferrer">
+            {g.icon && <img src={g.icon} alt="" width="28" height="28" loading="lazy" decoding="async" />}
+            <span>{g.title} 官网 ↗</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copy-host]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const value = btn.dataset.copyHost ?? '';
+      const done = () => {
+        btn.textContent = '已复制';
+        btn.classList.add('copied');
+        document.dispatchEvent(new CustomEvent('toast', { detail: `官网地址已复制：${value}` }));
+        setTimeout(() => { btn.textContent = '复制'; btn.classList.remove('copied'); }, 1800);
+      };
+      if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(value).then(done).catch(() => fallbackCopy(value, done));
+      } else {
+        fallbackCopy(value, done);
+      }
+    });
+  });
+  function fallbackCopy(value: string, done: () => void) {
+    const ta = document.createElement('textarea');
+    ta.value = value;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); done(); }
+    catch { document.dispatchEvent(new CustomEvent('toast', { detail: '请手动复制：' + value })); }
+    document.body.removeChild(ta);
+  }
+</script>

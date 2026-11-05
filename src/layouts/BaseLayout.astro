@@ -10,19 +10,16 @@ interface Props {
 
 const {
   title = '手游测评站',
-  description = '手游测评与攻略站：主推《桃园将帅录》《小小屠龙》，提供真实、克制、结论先行的游戏测评与实战攻略。',
+  description = '主推《桃园将帅录》《小小屠龙》的手游测评与攻略站：真实、克制、结论先行，图片与资料整理自官方公开渠道。',
   ogImage,
 } = Astro.props;
 
 const siteName = '手游测评站';
 const fullTitle = title === siteName ? title : `${title} · ${siteName}`;
 const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).href;
-const ogImg = ogImage
-  ? new URL(ogImage, Astro.site ?? Astro.url).href
-  : undefined;
+const ogImg = ogImage ? new URL(ogImage, Astro.site ?? Astro.url).href : undefined;
 // base 感知：项目页下内部链接需带 /<repo>/ 前缀
 const BASE = import.meta.env.BASE_URL;
-// sitemap 绝对地址（本地无 Astro.site 时回退为 base 相对）
 const sitemapUrl = (Astro.site ?? new URL(BASE, 'https://example.github.io')).href.replace(/\/$/, '') + '/sitemap-index.xml';
 ---
 
@@ -31,14 +28,13 @@ const sitemapUrl = (Astro.site ?? new URL(BASE, 'https://example.github.io')).hr
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#ff5a5f" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0a0a0f" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="sitemap" type="application/xml" title="Sitemap" href={sitemapUrl} />
 
-    <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={siteName} />
     <meta property="og:title" content={fullTitle} />
@@ -46,13 +42,11 @@ const sitemapUrl = (Astro.site ?? new URL(BASE, 'https://example.github.io')).hr
     <meta property="og:url" content={canonical} />
     {ogImg && <meta property="og:image" content={ogImg} />}
 
-    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
     {ogImg && <meta name="twitter:image" content={ogImg} />}
 
-    <!-- 结构化数据（站点级） -->
     <script type="application/ld+json" set:html={JSON.stringify({
       '@context': 'https://schema.org',
       '@type': 'WebSite',
@@ -65,19 +59,19 @@ const sitemapUrl = (Astro.site ?? new URL(BASE, 'https://example.github.io')).hr
   <body>
     <a class="skip-link" href="#main">跳到主内容</a>
 
-    <div class="demo-banner" id="demo-banner">
-      内容整理自官方公开资料，本站未做实测，评分均标注「待定」；下载与版本信息请以游戏官网为准。
-      <button type="button" id="demo-banner-close" aria-label="关闭提示">知道了</button>
-    </div>
-
     <header class="site-header">
       <div class="container">
-        <a class="brand" href={BASE}><span>游</span>戏测评站</a>
+        <a class="brand" href={BASE}>🎮 <span>游戏测评站</span></a>
         <nav class="nav" aria-label="主导航">
           <a href={BASE}>首页</a>
-          <a href={`${BASE}library`}>游戏库</a>
+          <a href={`${BASE}#spotlight`}>本期主推</a>
+          <a href={`${BASE}library`}>全部游戏</a>
           <a href={`${BASE}guides`}>攻略</a>
         </nav>
+        <form class="nav-search" action={`${BASE}library`} method="get" role="search">
+          <span class="ic" aria-hidden="true">🔍</span>
+          <input type="search" name="kw" placeholder="搜索游戏…" aria-label="搜索游戏" autocomplete="off" />
+        </form>
       </div>
     </header>
 
@@ -87,26 +81,60 @@ const sitemapUrl = (Astro.site ?? new URL(BASE, 'https://example.github.io')).hr
 
     <footer class="site-footer">
       <div class="container">
-        <p>本站为独立测评介绍站，非游戏官方站点。内容与图片整理自各游戏官方公开渠道，图片版权归原运营方所有；本站未做实测，未核实信息均已标注，数据以官方公告为准。</p>
+        <p>© 2026 游戏测评站 · 精选好游戏，真实、克制、结论先行 · <a href={BASE}>回到首页</a> · <a href={`${BASE}#official`}>官方渠道</a></p>
+        <p>本站为独立测评介绍站，非游戏官方站点。内容与图片整理自各游戏官方公开渠道，图片版权归原运营方所有；本站未做实测，评分均标注「待定」，版本与收费信息以官方公告为准。</p>
         <p class="footer-sources">
           图片来源：
           <a href="https://lzgzb.com" target="_blank" rel="noopener noreferrer">桃园将帅录官网</a> ·
           <a href="https://xxtlxz.cn" target="_blank" rel="noopener noreferrer">小小屠龙官网</a> ·
           <a href="http://www.paogf.com" target="_blank" rel="noopener noreferrer">老炮怀旧手游平台</a>
         </p>
+        <p class="footer-note">竖版海报由本站官方宣传图二次排版生成（模糊背景 + 原图），非游戏官方原图。</p>
       </div>
     </footer>
 
-    <script>
-      const banner = document.getElementById('demo-banner');
-      const btn = document.getElementById('demo-banner-close');
-      if (banner && localStorage.getItem('demo-banner-dismissed') === '1') {
-        banner.remove();
+    <button class="fab" id="fab" type="button">💬 官方渠道</button>
+    <button class="to-top" id="toTop" type="button" aria-label="回到顶部">↑</button>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script define:vars={{ base: BASE }}>
+      const toast = document.getElementById('toast');
+      let toastTimer;
+      function showToast(msg) {
+        if (!toast) return;
+        toast.textContent = msg;
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 1900);
       }
-      btn?.addEventListener('click', () => {
-        localStorage.setItem('demo-banner-dismissed', '1');
-        banner?.remove();
+      window.showToast = showToast;
+      document.addEventListener('toast', (e) => showToast(e.detail));
+
+      const fab = document.getElementById('fab');
+      const toTop = document.getElementById('toTop');
+      function onScroll() {
+        const y = window.scrollY;
+        fab?.classList.toggle('show', y > 300);
+        toTop?.classList.toggle('show', y > 400);
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+
+      toTop?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+      fab?.addEventListener('click', () => {
+        const target = document.getElementById('official');
+        if (target) {
+          window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 84, behavior: 'smooth' });
+        } else {
+          window.location.href = base + '#official';
+        }
       });
+
+      // 锚点跳转补偿固定导航高度
+      if (window.location.hash) {
+        const el = document.querySelector(window.location.hash);
+        if (el) setTimeout(() => window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 84, behavior: 'smooth' }), 120);
+      }
     </script>
   </body>
 </html>
