@@ -34,7 +34,7 @@ const shadeSvg = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${W
 </svg>`);
 const shade = await sharp(shadeSvg).png().toBuffer();
 
-// 顶部轻微压暗，让左上角角标更清楚
+// 顶部轻微压暗，增强竖版海报的层次感
 const topShadeSvg = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="200">
   <defs><linearGradient id="t" x1="0" y1="0" x2="0" y2="1">
     <stop offset="0" stop-color="#0a0a0f" stop-opacity="0.55"/>

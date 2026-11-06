@@ -6,7 +6,7 @@
 // slug           string           是     URL 友好的唯一标识，详情页路由用 /games/<slug>
 // title          string           是     游戏名
 // category       string           是     分类（三国策略/传奇/武侠/科幻…）
-// badge          string           否     角标：'pick'主推 | 'new'新游 | 'hot'热门 | ''无
+// badge          string           否     标记：'pick'主推 | 'new'新游 | 'hot'热门 | ''无（用于主推区 / 热门横滑筛选）
 // cover          string           是     封面图路径（16:9 webp，public 下）
 // poster         string           否     竖版海报（3:4 webp）；缺省自动取 /images/posters/<slug>.webp
 // hero           string           否     主推大图 banner（badge='pick' 时首页展示）
@@ -60,8 +60,3 @@ export const games: Game[] = (gamesData as unknown as Game[]).map((g) => ({
 export const featuredGames = games.filter((g) => g.badge === 'pick' && g.hero);
 
 export const CATEGORY_LIST = [...new Set(games.map((g) => g.category))];
-export const BADGE_MAP: Record<string, string> = {
-  pick: '主推',
-  new: '新游',
-  hot: '热门',
-};

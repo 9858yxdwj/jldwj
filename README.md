@@ -125,7 +125,7 @@ node scripts/build-posters.mjs   # 上述素材 → 竖版海报（新增游戏�
 | --- | --- | --- | --- |
 | `slug` | string | 是 | URL 标识，唯一；同时决定海报文件名 |
 | `title` / `category` | string | 是 | 游戏名 / 分类（用于胶囊筛选） |
-| `badge` | `'pick'\|'new'\|'hot'\|''` | 是 | `pick` = 主推（首页大图 + 蓝色角标） |
+| `badge` | `'pick'\|'new'\|'hot'\|''` | 是 | `pick` = 主推（首页大图展示）；另用于热门横滑筛选 |
 | `cover` | string | 是 | 16:9 封面，public 下绝对路径 |
 | `poster` | string | 否 | 3:4 竖版海报；缺省自动取 `/images/posters/<slug>.webp` |
 | `hero` | string | 否 | 主推大图 banner，`badge='pick'` 时首页展示 |

@@ -293,14 +293,6 @@ main { padding-top: 64px; min-height: 70vh; }
   backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
   border-radius: 6px; font-size: 11px; white-space: nowrap;
 }
-.poster-ribbon {
-  position: absolute; top: 12px; left: 12px; z-index: 3; pointer-events: none;
-  font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 7px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-}
-.ribbon-new { background: var(--green); color: #062b16; }
-.ribbon-hot { background: var(--grad); color: #2a0a0a; }
-.ribbon-pick { background: var(--grad-blue); color: #04202e; }
 .poster-actions {
   display: flex; gap: 8px; margin-top: 12px; pointer-events: auto;
 }
