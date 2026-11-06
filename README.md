@@ -38,6 +38,7 @@
 │   ├── styles/global.css          # 海报墙 design tokens + 组件样式 + 响应式
 │   ├── layouts/BaseLayout.astro   # 固定毛玻璃导航 / 全局搜索 / 页脚 / 悬浮交互
 │   ├── components/
+│   │   ├── Icon.astro             # 统一线性 SVG 图标（按钮 / 功能图标，currentColor）
 │   │   ├── PosterGrid.astro       # 海报网格 + 胶囊筛选 + 搜索 + 快速预览弹窗
 │   │   ├── GameCard.astro         # 竖版游戏海报卡
 │   │   ├── GuideCard.astro        # 竖版攻略海报卡
@@ -62,6 +63,13 @@
 ```
 
 > 客服二维码由站方提供（源文件 `qrcode_for_gh_7c22786de640_258.jpg`），已转为无损 PNG 并补齐白色静区以保证扫码识别率。如需更换，直接覆盖 `public/images/service-qr.png` 即可，组件通过 `asset()` 自动处理项目页路径。
+
+### 按钮与图标规范
+
+- 交互控件里的图标统一用 `Icon.astro` 的内联 SVG（单色 `currentColor`，24×24 viewBox），不依赖系统 emoji 字体；标题、空状态等装饰性 emoji 保留。
+- 新增图标：在 `Icon.astro` 的 `shapes` 中加一条路径，用 `<Icon name="..." size={16} />` 调用；纯图标按钮必须带 `aria-label`。
+- 按钮基线集中在 `global.css` 末尾的「按钮 / 图标统一规范」区段：`min-height: 44px` 触摸目标、`inline-flex + gap` 图标对齐、`:active` 按压反馈、`:focus-visible` 焦点环与禁用态。
+- 移动端（≤768px）海报卡右上角为圆形「快速预览」图标按钮，不占用卡片底部标题空间；筛选按钮用 `aria-pressed` 同步选中态。
 
 ## 本地开发
 

@@ -1,6 +1,7 @@
 ---
 import type { Game } from '../data/games';
 import { asset } from '../utils/asset';
+import Icon from './Icon.astro';
 
 interface Props {
   game: Game;
@@ -30,7 +31,7 @@ const ratingText = game.rating === null ? '待定' : game.rating.toFixed(1);
       <span class="poster-tag">{game.category}</span>
     </div>
     <div class="poster-actions">
-      <a class="mini" href={href}>查看测评 →</a>
+      <a class="mini" href={href}>查看测评 <Icon name="arrow-right" size={14} /></a>
       <button
         type="button"
         class="mini primary"
@@ -42,7 +43,8 @@ const ratingText = game.rating === null ? '待定' : game.rating.toFixed(1);
         data-p-rating={ratingText}
         data-p-tags={game.tags.join('、')}
         data-p-href={href}
-      >⚡ 快速预览</button>
+        aria-label={`快速预览 ${game.title}`}
+      ><Icon name="bolt" size={14} /> 快速预览</button>
     </div>
   </div>
 </article>

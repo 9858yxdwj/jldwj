@@ -1,6 +1,7 @@
 ---
 // 首页客服卡片：二维码为主视觉，沿用海报墙的「联系卡片」布局
 import { asset } from '../utils/asset';
+import Icon from './Icon.astro';
 
 const qr = asset('images/service-qr.png');
 ---
@@ -10,22 +11,22 @@ const qr = asset('images/service-qr.png');
     <div class="service-qr-wrap">
       <button class="service-qr-btn" type="button" data-qr-open aria-label="放大查看客服二维码">
         <img src={qr} alt="客服微信公众号二维码，扫码后按指引联系客服" width="290" height="290" loading="lazy" decoding="async" />
-        <span class="service-qr-zoom">🔍 点击放大</span>
+        <span class="service-qr-zoom"><Icon name="zoom-in" size={13} /> 点击放大</span>
       </button>
       <div class="service-qr-cap">微信扫一扫 · 联系客服</div>
     </div>
 
     <div class="contact-info">
-      <div class="service-eyebrow">💬 CUSTOMER SERVICE</div>
+      <div class="service-eyebrow"><Icon name="chat" size={13} /> CUSTOMER SERVICE</div>
       <h3>有问题？扫码联系客服</h3>
       <p>
         游戏下载与安装、开服活动、礼包资讯、攻略纠错与投稿，都可以扫码关注公众号后按指引联系客服。
         本站为独立测评介绍站，<strong>不代收任何费用，也不处理充值与账号问题</strong>；版本、活动与收费信息请以游戏官方公告为准。
       </p>
       <ul class="service-list">
-        <li>✅ 下载 / 安装指引</li>
-        <li>✅ 开服 / 活动 / 礼包咨询</li>
-        <li>✅ 攻略纠错与内容投稿</li>
+        <li><Icon name="check" size={15} /> 下载 / 安装指引</li>
+        <li><Icon name="check" size={15} /> 开服 / 活动 / 礼包咨询</li>
+        <li><Icon name="check" size={15} /> 攻略纠错与内容投稿</li>
       </ul>
     </div>
   </div>
@@ -34,7 +35,7 @@ const qr = asset('images/service-qr.png');
 <!-- 二维码放大弹窗 -->
 <div class="qr-modal" data-qr-modal role="dialog" aria-modal="true" aria-label="客服二维码">
   <div class="qr-modal-box">
-    <button class="qr-modal-close" type="button" data-qr-close aria-label="关闭二维码弹窗">×</button>
+    <button class="qr-modal-close" type="button" data-qr-close aria-label="关闭二维码弹窗"><Icon name="close" size={20} /></button>
     <img src={qr} alt="客服微信公众号二维码（放大）" width="290" height="290" />
     <p>微信扫一扫 · 联系客服</p>
     <small>长按二维码可保存图片或识别；请勿向任何私人账号转账</small>

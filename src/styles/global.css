@@ -664,3 +664,74 @@ main { padding-top: 64px; min-height: 70vh; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+
+/* ── 按钮 / 图标统一规范 ──────────────────────
+   统一的 SVG 图标基线、≥44px 触摸目标、键盘焦点与按压反馈。
+   放在末尾覆盖上方组件样式，避免改动原有布局规则。
+   ─────────────────────────────────────────── */
+.icon { display: inline-block; flex: 0 0 auto; vertical-align: -0.125em; }
+.brand { display: inline-flex; align-items: center; gap: 8px; }
+.brand .icon { color: var(--accent2); }
+.nav-search .ic { color: var(--muted); flex: 0 0 auto; }
+.hero-tag .icon { color: var(--accent2); }
+
+/* 所有可点击控件共享的交互基线 */
+.btn-primary, .btn-ghost, .btn-download, .btn-spotlight,
+.poster-actions .mini, .filter-btn, .section-title .more,
+.service-qr-cta, .cat-chip {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 8px; min-height: 44px; cursor: pointer; text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform .18s ease, box-shadow .25s ease, background-color .2s ease,
+              border-color .2s ease, color .2s ease, filter .2s ease;
+}
+.poster-actions .mini { padding-top: 0; padding-bottom: 0; }
+.btn-download:active, .btn-spotlight:active, .poster-actions .mini:active,
+.filter-btn:active, .section-title .more:active, .cat-chip:active,
+.to-top:active, .fab:active, .modal-close:active, .qr-modal-close:active {
+  transform: scale(0.95);
+}
+:focus-visible { outline: 2px solid var(--accent2); outline-offset: 3px; border-radius: 8px; }
+button:disabled, [aria-disabled='true'] { opacity: .5; cursor: not-allowed; transform: none; }
+
+/* 功能性图标与文案对齐 */
+.service-qr-zoom { display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
+.service-eyebrow { display: inline-flex; align-items: center; gap: 6px; }
+.service-eyebrow .icon { color: var(--accent2); }
+.service-list li { display: inline-flex; align-items: center; gap: 8px; }
+.service-list .icon { color: #1f9d55; }
+.service-title { display: flex; align-items: center; gap: 8px; }
+.toast { display: flex; align-items: center; gap: 10px; }
+.toast .icon { color: var(--accent2); }
+
+/* 纯图标按钮放大到可点击尺寸 */
+.modal-close { width: 44px; height: 44px; top: 10px; right: 10px; }
+.qr-modal-close {
+  width: 44px; height: 44px; top: 4px; right: 6px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+
+/* 404 页：替换散落的内联样式 */
+.notfound { text-align: center; padding: 80px 0 100px; }
+.notfound-code { font-size: clamp(80px, 14vw, 140px); font-weight: 800; line-height: 1; }
+.notfound h1 { font-size: 26px; font-weight: 800; margin: var(--sp-4) 0 var(--sp-3); }
+.notfound p { color: var(--muted); }
+.notfound-actions {
+  display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+  margin-top: var(--sp-5);
+}
+
+/* 移动端：海报卡改为右上角圆形「快速预览」图标按钮，
+   不再隐藏功能，也不挤压底部标题与简介 */
+@media (max-width: 768px) {
+  .poster-actions {
+    display: block; position: absolute; top: 10px; right: 10px;
+    margin: 0; z-index: 3;
+  }
+  .poster-actions .mini:not(.primary) { display: none; }
+  .poster-actions .mini.primary {
+    width: 44px; min-width: 44px; height: 44px; min-height: 44px;
+    padding: 0; border-radius: 50%; font-size: 0; gap: 0;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  }
+}

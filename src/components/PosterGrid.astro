@@ -1,5 +1,6 @@
 ---
 import GameCard from './GameCard.astro';
+import Icon from './Icon.astro';
 import type { Game } from '../data/games';
 import { CATEGORY_LIST } from '../data/games';
 
@@ -33,19 +34,19 @@ const {
       <h2>{title}</h2>
       {badge && <span class="badge">{badge}</span>}
       {moreHref
-        ? <a class="more" href={moreHref}>{moreLabel} →</a>
+        ? <a class="more" href={moreHref}>{moreLabel} <Icon name="arrow-right" size={15} /></a>
         : <span class="sub">{sub}</span>}
     </div>
   )}
 
   {showFilters && (
-    <div class="filter-bar" data-filter-bar>
-      <button class="filter-btn active" type="button" data-cat="全部">全部</button>
+    <div class="filter-bar" data-filter-bar role="group" aria-label="按分类筛选游戏">
+      <button class="filter-btn active" type="button" data-cat="全部" aria-pressed="true">全部</button>
       {CATEGORY_LIST.map((c) => (
-        <button class="filter-btn" type="button" data-cat={c}>{c}</button>
+        <button class="filter-btn" type="button" data-cat={c} aria-pressed="false">{c}</button>
       ))}
       <div class="filter-search">
-        <span aria-hidden="true">🔍</span>
+        <Icon name="search" size={16} />
         <input type="search" data-search placeholder="搜索游戏 / 标签…" aria-label="搜索游戏或标签" autocomplete="off" />
       </div>
       <span class="result-count" data-count>共 {games.length} 款</span>
@@ -61,7 +62,7 @@ const {
   <div class="modal" data-modal aria-hidden="true">
     <div class="modal-card" role="dialog" aria-modal="true" aria-label="游戏快速预览">
       <div class="modal-hero">
-        <button class="modal-close" type="button" data-m-close aria-label="关闭">✕</button>
+        <button class="modal-close" type="button" data-m-close aria-label="关闭"><Icon name="close" size={18} /></button>
         <img class="modal-hero-img" data-m-img alt="" />
       </div>
       <div class="modal-body">
@@ -69,7 +70,7 @@ const {
         <div class="modal-tags" data-m-tags></div>
         <p class="modal-desc" data-m-desc></p>
         <div class="modal-actions">
-          <a class="btn-primary" data-m-detail href="#">查看完整测评</a>
+          <a class="btn-primary" data-m-detail href="#">查看完整测评 <Icon name="arrow-right" size={16} /></a>
         </div>
       </div>
     </div>
@@ -119,10 +120,16 @@ const {
       keyword = presetKw.trim().toLowerCase();
       search.value = presetKw;
     }
+    // 筛选按钮是切换按钮，同步 aria-pressed 供读屏识别选中态
+    catBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.classList.contains('active'))));
 
     catBtns.forEach((btn) => btn.addEventListener('click', () => {
       currentCat = btn.dataset.cat ?? '全部';
-      catBtns.forEach((b) => b.classList.toggle('active', b === btn));
+      catBtns.forEach((b) => {
+        const on = b === btn;
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-pressed', String(on));
+      });
       apply();
     }));
     search?.addEventListener('input', () => {

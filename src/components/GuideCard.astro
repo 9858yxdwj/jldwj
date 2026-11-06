@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import { asset } from '../utils/asset';
+import Icon from './Icon.astro';
 
 interface Props {
   guide: CollectionEntry<'guides'>;
@@ -20,11 +21,11 @@ const href = `${BASE}guides/${guide.slug}`;
     <div class="poster-title">{title}</div>
     <div class="poster-desc">{summary}</div>
     <div class="poster-meta">
-      <span class="poster-rating">📖 {fmtDate}</span>
+      <span class="poster-rating"><Icon name="calendar" size={14} /> {fmtDate}</span>
       <span class="poster-tag">{category}</span>
     </div>
     <div class="poster-actions">
-      <a class="mini primary" href={href}>阅读全文 →</a>
+      <a class="mini primary" href={href}>阅读全文 <Icon name="arrow-right" size={14} /></a>
     </div>
   </div>
 </article>

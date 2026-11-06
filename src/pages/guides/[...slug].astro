@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ServiceCard from '../../components/ServiceCard.astro';
+import Icon from '../../components/Icon.astro';
 import { getCollection } from 'astro:content';
 import { games } from '../../data/games';
 import { asset } from '../../utils/asset';
@@ -78,7 +79,7 @@ const breadcrumbLd = {
 
       {relatedGame && (
         <div style="max-width:760px;margin:var(--sp-6) auto 0;">
-          <a class="btn-download" href={`${BASE}games/${relatedGame.slug}`}>查看关联游戏：{relatedGame.title} →</a>
+          <a class="btn-download" href={`${BASE}games/${relatedGame.slug}`}>查看关联游戏：{relatedGame.title} <Icon name="arrow-right" size={16} /></a>
         </div>
       )}
     </article>

@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import Icon from '../components/Icon.astro';
 
 interface Props {
   title?: string;
@@ -61,7 +62,7 @@ const sitemapUrl = (Astro.site ?? new URL(BASE, 'https://example.github.io')).hr
 
     <header class="site-header">
       <div class="container">
-        <a class="brand" href={BASE}>🎮 <span>游戏测评站</span></a>
+        <a class="brand" href={BASE}><Icon name="gamepad" size={22} /> <span>游戏测评站</span></a>
         <nav class="nav" aria-label="主导航">
           <a href={BASE}>首页</a>
           <a href={`${BASE}#spotlight`}>本期主推</a>
@@ -69,7 +70,7 @@ const sitemapUrl = (Astro.site ?? new URL(BASE, 'https://example.github.io')).hr
           <a href={`${BASE}guides`}>攻略</a>
         </nav>
         <form class="nav-search" action={`${BASE}library`} method="get" role="search">
-          <span class="ic" aria-hidden="true">🔍</span>
+          <Icon name="search" size={16} class="ic" />
           <input type="search" name="kw" placeholder="搜索游戏…" aria-label="搜索游戏" autocomplete="off" />
         </form>
       </div>
@@ -89,16 +90,17 @@ const sitemapUrl = (Astro.site ?? new URL(BASE, 'https://example.github.io')).hr
       </div>
     </footer>
 
-    <button class="fab" id="fab" type="button">💬 联系客服</button>
-    <button class="to-top" id="toTop" type="button" aria-label="回到顶部">↑</button>
-    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <button class="fab" id="fab" type="button" aria-label="联系客服"><Icon name="chat" size={18} /> 联系客服</button>
+    <button class="to-top" id="toTop" type="button" aria-label="回到顶部"><Icon name="arrow-up" size={22} /></button>
+    <div class="toast" id="toast" role="status" aria-live="polite"><Icon name="info" size={18} /><span id="toastText"></span></div>
 
     <script define:vars={{ base: BASE }}>
       const toast = document.getElementById('toast');
+      const toastText = document.getElementById('toastText');
       let toastTimer;
       function showToast(msg) {
-        if (!toast) return;
-        toast.textContent = msg;
+        if (!toast || !toastText) return;
+        toastText.textContent = msg;
         toast.classList.add('show');
         clearTimeout(toastTimer);
         toastTimer = setTimeout(() => toast.classList.remove('show'), 1900);

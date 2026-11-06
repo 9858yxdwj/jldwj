@@ -5,6 +5,7 @@ import HotScroll from '../components/HotScroll.astro';
 import PosterGrid from '../components/PosterGrid.astro';
 import GuideCard from '../components/GuideCard.astro';
 import ContactCard from '../components/ContactCard.astro';
+import Icon from '../components/Icon.astro';
 import { games, CATEGORY_LIST, featuredGames } from '../data/games';
 import { getCollection } from 'astro:content';
 
@@ -23,7 +24,7 @@ const heroImage = featuredGames[0]?.hero;
   <section class="hero-wall" id="home">
     <div class="hero-bg" style={heroImage ? `background-image:url('${heroImage}')` : undefined}></div>
     <div class="hero-content">
-      <div class="hero-tag">✨ 真实测评 · 精选好游戏</div>
+      <div class="hero-tag"><Icon name="sparkles" size={14} /> 真实测评 · 精选好游戏</div>
       <h1>发现你的<br /><em>下一款最爱游戏</em></h1>
       <p>
         收录 {total} 款手游与 {guideCount} 篇实战攻略，本期主推《桃园将帅录》与《小小屠龙》。
@@ -38,8 +39,8 @@ const heroImage = featuredGames[0]?.hero;
       </div>
 
       <div class="hero-cta">
-        <a class="btn-primary" href="#games">🎯 浏览全部游戏</a>
-        <a class="btn-ghost" href="#spotlight">✨ 查看本期主推</a>
+        <a class="btn-primary" href="#games"><Icon name="grid" size={18} /> 浏览全部游戏</a>
+        <a class="btn-ghost" href="#spotlight"><Icon name="sparkles" size={18} /> 查看本期主推</a>
       </div>
     </div>
   </section>
@@ -59,7 +60,7 @@ const heroImage = featuredGames[0]?.hero;
   <div class="section-title" id="guides">
     <h2>📖 最新攻略</h2>
     <span class="badge">GUIDE</span>
-    <a class="more" href={`${BASE}guides`}>查看全部攻略 →</a>
+    <a class="more" href={`${BASE}guides`}>查看全部攻略 <Icon name="arrow-right" size={15} /></a>
   </div>
   <div class="poster-grid">
     {guides.slice(0, 3).map((g) => <GuideCard guide={g} />)}
