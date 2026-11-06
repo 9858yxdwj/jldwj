@@ -25,6 +25,10 @@ export default defineConfig({
   integrations: [sitemap()],
   // 开发服务器监听所有网卡（含 IPv4 127.0.0.1），方便本地预览面板访问
   server: { host: true, port: 4321 },
+  // 站内链接预取：链接进入视口就提前拉取目标页 HTML（gzip 后约 5KB/页），
+  // 点击时只需解析已缓存的文档，静态站也能做到接近瞬时的切页。
+  // 纯锚点 / 同页跳转在组件上用 data-astro-prefetch="false" 排除。
+  prefetch: { prefetchAll: true, defaultStrategy: 'viewport' },
   // 图片：public/images/ 下的 webp 由 scripts/build-images.mjs 统一生成（压缩 + 尺寸归一）。
   // 所有 public 资源都通过 src/utils/asset.ts 的 asset() 转成 base 感知路径，
   // 避免 GitHub Pages 项目页（/<repo>/）下图片 404。

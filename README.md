@@ -15,6 +15,7 @@
 - 结构化数据：`VideoGame` / `Article` / `BreadcrumbList` / `WebSite`
 - SEO：`robots.txt` 端点、sitemap、canonical、OG/Twitter、自定义 404
 - 交互：纯前端胶囊筛选 + 关键词搜索 + 快速预览弹窗 + 客服二维码放大 + 悬浮按钮 / Toast
+- 性能：站内链接预取、首屏 LCP 图 preload / fetchpriority、滚动与筛选节流、静态渲染开销收敛
 - 部署：GitHub Actions 自动构建并发布到 GitHub Pages
 - 收录：可选百度资源平台主动推送（需配置密钥）
 
@@ -53,6 +54,7 @@
 │       ├── guides/index.astro    # 攻略库
 │       ├── guides/[...slug].astro# 攻略详情页
 │       ├── robots.txt.ts / 404.astro
+├── public/favicon.svg       # 站点图标（避免浏览器盲请求 /favicon.ico 产生 404）
 └── public/images/
     ├── covers/    # 8 张 16:9 封面
     ├── posters/   # 8 张 3:4 竖版海报（海报墙卡片主视觉）
@@ -70,6 +72,15 @@
 - 新增图标：在 `Icon.astro` 的 `shapes` 中加一条路径，用 `<Icon name="..." size={16} />` 调用；纯图标按钮必须带 `aria-label`。
 - 按钮基线集中在 `global.css` 末尾的「按钮 / 图标统一规范」区段：`min-height: 44px` 触摸目标、`inline-flex + gap` 图标对齐、`:active` 按压反馈、`:focus-visible` 焦点环与禁用态。
 - 移动端（≤768px）海报卡右上角为圆形「快速预览」图标按钮，不占用卡片底部标题空间；筛选按钮用 `aria-pressed` 同步选中态。
+
+### 性能与响应速度
+
+- **切页**：`astro.config.mjs` 开启 `prefetch: { prefetchAll: true, defaultStrategy: 'viewport' }`，链接进入视口 300ms 后由 Astro 注入 `<link rel="prefetch">` 提前取回目标页 HTML；纯锚点链接用 `data-astro-prefetch="false"` 排除。不依赖 ClientRouter，静态多页站也能接近瞬时切换。
+- **首屏**：`BaseLayout` 的 `preloadImage` 给 Hero 背景（CSS 背景图浏览器发现得晚）加 `<link rel="preload" as="image" fetchpriority="high">`；首张主推大图 `loading="eager" fetchpriority="high"`，其余 lazy；游戏详情 / 攻略详情首图同样标 high。
+- **图片**：`build-images.mjs` 的 `BANNER` 改为 1440×810 / q78（原 1600×900 / q86），两张主推大图由 199KB + 136KB 降到 126KB + 86KB；改参数后需重跑该脚本（依赖 `.assets-src/` 原始素材）再 build。
+- **渲染**：移除 Hero 的 18s 无限缩放动画（整屏模糊大图会持续参与合成）、导航 `backdrop-filter` 20px → 12px、`transition: all` 改为具体属性、卡片淡入 0.45s → 0.3s 且错峰封顶 0.14s。
+- **交互**：滚动监听用 rAF 节流且只在显隐状态翻转时写 DOM；长距离滚动（>1400px）改为瞬时，避免平滑动画 1s+ 的迟钝感；筛选预计算检索文本、改用 `hidden` 属性显隐卡片（配套 CSS `.poster-card[hidden]`）、连续输入合并到一帧；快速预览弹窗大图在 hover / focus 时预热缓存。
+- `public/favicon.svg` 显式声明图标，消除浏览器自动请求 `/favicon.ico` 的 404。
 
 ## 本地开发
 

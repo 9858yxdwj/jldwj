@@ -63,7 +63,7 @@ const {
     <div class="modal-card" role="dialog" aria-modal="true" aria-label="游戏快速预览">
       <div class="modal-hero">
         <button class="modal-close" type="button" data-m-close aria-label="关闭"><Icon name="close" size={18} /></button>
-        <img class="modal-hero-img" data-m-img alt="" />
+        <img class="modal-hero-img" data-m-img alt="" decoding="async" />
       </div>
       <div class="modal-body">
         <h3 data-m-title></h3>
@@ -87,25 +87,36 @@ const {
     const countEl = root.querySelector<HTMLElement>('[data-count]');
     const emptyEl = root.querySelector<HTMLElement>('[data-empty]');
     const modal = root.querySelector<HTMLElement>('[data-modal]');
+
+    // 预计算检索文本：避免每次按键都重新拼接字符串并 toLowerCase
+    const index = cards.map((el) => ({
+      el,
+      cat: el.dataset.category ?? '',
+      hay: `${el.dataset.title ?? ''} ${el.dataset.tags ?? ''} ${el.dataset.category ?? ''}`.toLowerCase(),
+    }));
+    // 淡入错峰收敛在 0.14s 内，长列表不再「慢慢冒出来」
+    cards.forEach((c, i) => { c.style.animationDelay = `${Math.min(i, 7) * 0.02}s`; });
+
     let currentCat = '全部';
     let keyword = '';
-
-    // 逐张淡入
-    cards.forEach((c, i) => { c.style.animationDelay = `${i * 0.04}s`; });
-
     function apply() {
       let visible = 0;
-      cards.forEach((card) => {
-        const d = card.dataset;
-        const matchCat = currentCat === '全部' || d.category === currentCat;
-        const hay = `${d.title ?? ''} ${d.tags ?? ''} ${d.category ?? ''}`.toLowerCase();
-        const matchKw = !keyword || hay.includes(keyword);
-        const show = matchCat && matchKw;
-        card.style.display = show ? '' : 'none';
+      for (const item of index) {
+        const show = (currentCat === '全部' || item.cat === currentCat) &&
+                     (!keyword || item.hay.includes(keyword));
+        // hidden 属性不写内联 style，也不覆盖组件自身的 display 规则
+        item.el.hidden = !show;
         if (show) visible++;
-      });
+      }
       if (countEl) countEl.textContent = `共 ${visible} 款`;
       if (emptyEl) emptyEl.hidden = visible !== 0;
+    }
+    // 连续输入合并到一帧，避免每个按键都触发一次重排
+    let queued = false;
+    function scheduleApply() {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => { queued = false; apply(); });
     }
 
     // 支持首页分类入口 / 导航栏搜索带来的 ?cat= & ?kw=
@@ -134,7 +145,7 @@ const {
     }));
     search?.addEventListener('input', () => {
       keyword = (search.value ?? '').trim().toLowerCase();
-      apply();
+      scheduleApply();
     });
     apply();
 
@@ -161,7 +172,11 @@ const {
       if (mDesc) mDesc.textContent = d.pDesc ?? '';
       if (mTags) {
         const items = [d.pRating ? `★ ${d.pRating}` : '', d.pCat ?? '', ...(d.pTags ?? '').split('、')].filter(Boolean);
-        mTags.innerHTML = items.map((t) => `<span>${t}</span>`).join('');
+        mTags.replaceChildren(...items.map((t) => {
+          const span = document.createElement('span');
+          span.textContent = t;
+          return span;
+        }));
       }
       if (mDetail) mDetail.href = d.pHref ?? '#';
       modal.classList.add('open');
@@ -170,7 +185,19 @@ const {
       modal.querySelector<HTMLButtonElement>('[data-m-close]')?.focus();
     }
 
+    // 弹窗大图预热：悬停 / 聚焦时先暖缓存，点击后基本瞬时显示
+    const warmed = new Set<string>();
+    function warmCover(btn: HTMLButtonElement) {
+      const src = btn.dataset.pCover;
+      if (!src || warmed.has(src)) return;
+      warmed.add(src);
+      const img = new Image();
+      img.decoding = 'async';
+      img.src = src;
+    }
     root.querySelectorAll<HTMLButtonElement>('[data-preview]').forEach((btn) => {
+      btn.addEventListener('pointerenter', () => warmCover(btn));
+      btn.addEventListener('focus', () => warmCover(btn));
       btn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); openModal(btn.dataset); });
     });
     modal?.querySelector('[data-m-close]')?.addEventListener('click', closeModal);

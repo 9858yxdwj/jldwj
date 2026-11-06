@@ -7,12 +7,15 @@ interface Props {
   description?: string;
   /** 详情页等可传具体 URL，用于 OG / canonical */
   ogImage?: string;
+  /** 首屏 LCP 图片：提前 preload，避免等 CSS 解析后才发起请求 */
+  preloadImage?: string;
 }
 
 const {
   title = '手游测评站',
   description = '主推《桃园将帅录》《小小屠龙》的手游测评与攻略站：真实、克制、结论先行，图片与资料整理自官方公开渠道。',
   ogImage,
+  preloadImage,
 } = Astro.props;
 
 const siteName = '手游测评站';
@@ -31,6 +34,7 @@ const sitemapUrl = (Astro.site ?? new URL(BASE, 'https://example.github.io')).hr
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="dark" />
     <meta name="theme-color" content="#0a0a0f" />
+    <link rel="icon" type="image/svg+xml" href={`${BASE}favicon.svg`} />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
@@ -55,6 +59,9 @@ const sitemapUrl = (Astro.site ?? new URL(BASE, 'https://example.github.io')).hr
       url: (Astro.site ?? Astro.url).href,
     })} />
 
+    {/* Hero 是 CSS 背景图，浏览器要等 CSS + DOM 解析完才发现它；显式 preload 让它与 CSS 并行下载 */}
+    {preloadImage && <link rel="preload" as="image" href={preloadImage} fetchpriority="high" />}
+
     <slot name="head" />
   </head>
   <body>
@@ -65,7 +72,7 @@ const sitemapUrl = (Astro.site ?? new URL(BASE, 'https://example.github.io')).hr
         <a class="brand" href={BASE}><Icon name="gamepad" size={22} /> <span>游戏测评站</span></a>
         <nav class="nav" aria-label="主导航">
           <a href={BASE}>首页</a>
-          <a href={`${BASE}#spotlight`}>本期主推</a>
+          <a href={`${BASE}#spotlight`} data-astro-prefetch="false">本期主推</a>
           <a href={`${BASE}library`}>全部游戏</a>
           <a href={`${BASE}guides`}>攻略</a>
         </nav>
@@ -82,7 +89,7 @@ const sitemapUrl = (Astro.site ?? new URL(BASE, 'https://example.github.io')).hr
 
     <footer class="site-footer">
       <div class="container">
-        <p>© 2026 游戏测评站 · 精选好游戏，真实、克制、结论先行 · <a href={BASE}>回到首页</a> · <a href={`${BASE}#service`}>联系客服</a></p>
+        <p>© 2026 游戏测评站 · 精选好游戏，真实、克制、结论先行 · <a href={BASE}>回到首页</a> · <a href={`${BASE}#service`} data-astro-prefetch="false">联系客服</a></p>
         <p>本站为独立测评介绍站，非游戏官方站点。内容与图片整理自各游戏官方公开渠道，图片版权归原运营方所有；本站未做实测，评分均标注「待定」，版本与收费信息以官方公告为准。</p>
         <p class="footer-note">客服二维码为本站提供的公众号入口，扫码后请按公众号指引咨询；本站不代收任何费用，也不处理充值与账号问题。</p>
         <p class="footer-sources">图片来源：桃园将帅录官网 · 小小屠龙官网 · 老炮怀旧手游平台（版权归原运营方所有）</p>
@@ -110,19 +117,33 @@ const sitemapUrl = (Astro.site ?? new URL(BASE, 'https://example.github.io')).hr
 
       const fab = document.getElementById('fab');
       const toTop = document.getElementById('toTop');
-      function onScroll() {
+      // 滚动用 rAF 节流，且只在显隐状态翻转时写 DOM，避免每帧触发样式计算
+      let scrollQueued = false, fabShown = false, topShown = false;
+      function readScroll() {
+        scrollQueued = false;
         const y = window.scrollY;
-        fab?.classList.toggle('show', y > 300);
-        toTop?.classList.toggle('show', y > 400);
+        const showFab = y > 300, showTop = y > 400;
+        if (showFab !== fabShown) { fabShown = showFab; fab?.classList.toggle('show', showFab); }
+        if (showTop !== topShown) { topShown = showTop; toTop?.classList.toggle('show', showTop); }
+      }
+      function onScroll() {
+        if (scrollQueued) return;
+        scrollQueued = true;
+        requestAnimationFrame(readScroll);
       }
       window.addEventListener('scroll', onScroll, { passive: true });
-      onScroll();
+      readScroll();
 
-      toTop?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+      // 长距离平滑滚动要 1s 以上，体感像「点了没反应」；超过阈值改为瞬时
+      function jumpTo(top) {
+        const behavior = Math.abs(top - window.scrollY) > 1400 ? 'instant' : 'smooth';
+        window.scrollTo({ top, behavior });
+      }
+      toTop?.addEventListener('click', () => jumpTo(0));
       fab?.addEventListener('click', () => {
         const target = document.getElementById('service');
         if (target) {
-          window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 84, behavior: 'smooth' });
+          jumpTo(target.getBoundingClientRect().top + window.scrollY - 84);
         } else {
           window.location.href = base + '#service';
         }
@@ -156,7 +177,10 @@ const sitemapUrl = (Astro.site ?? new URL(BASE, 'https://example.github.io')).hr
       const hash = window.location.hash === '#official' ? '#service' : window.location.hash;
       if (hash) {
         const el = document.querySelector(hash);
-        if (el) setTimeout(() => window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 84, behavior: 'smooth' }), 120);
+        if (el) requestAnimationFrame(() => window.scrollTo({
+          top: el.getBoundingClientRect().top + window.scrollY - 84,
+          behavior: 'instant',
+        }));
       }
     </script>
   </body>

@@ -90,7 +90,9 @@ async function emit(srcName, outPath, { width, height, fit = 'cover', quality = 
 
 /** 输出清单：[源文件名, 输出相对路径, 规格] */
 const COVER = { width: 960, height: 540, fit: 'cover', quality: 82 };
-const BANNER = { width: 1600, height: 900, fit: 'cover', quality: 86 };
+// Hero / 主推卡背景只作模糊铺底与暗遮罩，1440×810 q78 已足够；
+// 相比原 1600×900 q86 可省约一半体积，直接缩短首屏 LCP。
+const BANNER = { width: 1440, height: 810, fit: 'cover', quality: 78 };
 const ICON = { width: 256, height: 256, fit: 'cover', quality: 85 };
 const SHOT = { width: 960, height: 540, fit: 'contain', quality: 82, bg: '#0e1016' };
 

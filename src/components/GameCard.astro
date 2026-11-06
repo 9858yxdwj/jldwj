@@ -31,7 +31,7 @@ const ratingText = game.rating === null ? '待定' : game.rating.toFixed(1);
       <span class="poster-tag">{game.category}</span>
     </div>
     <div class="poster-actions">
-      <a class="mini" href={href}>查看测评 <Icon name="arrow-right" size={14} /></a>
+      <a class="mini" href={href} data-astro-prefetch="false">查看测评 <Icon name="arrow-right" size={14} /></a>
       <button
         type="button"
         class="mini primary"

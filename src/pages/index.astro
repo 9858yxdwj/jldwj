@@ -19,7 +19,7 @@ const BASE = import.meta.env.BASE_URL;
 const heroImage = featuredGames[0]?.hero;
 ---
 
-<BaseLayout>
+<BaseLayout preloadImage={heroImage}>
   <!-- 沉浸式 Hero：模糊放大的官方 banner + 渐变遮罩 -->
   <section class="hero-wall" id="home">
     <div class="hero-bg" style={heroImage ? `background-image:url('${heroImage}')` : undefined}></div>
@@ -39,8 +39,8 @@ const heroImage = featuredGames[0]?.hero;
       </div>
 
       <div class="hero-cta">
-        <a class="btn-primary" href="#games"><Icon name="grid" size={18} /> 浏览全部游戏</a>
-        <a class="btn-ghost" href="#spotlight"><Icon name="sparkles" size={18} /> 查看本期主推</a>
+        <a class="btn-primary" href="#games" data-astro-prefetch="false"><Icon name="grid" size={18} /> 浏览全部游戏</a>
+        <a class="btn-ghost" href="#spotlight" data-astro-prefetch="false"><Icon name="sparkles" size={18} /> 查看本期主推</a>
       </div>
     </div>
   </section>

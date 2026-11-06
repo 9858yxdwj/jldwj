@@ -81,7 +81,8 @@ main { padding-top: 64px; min-height: 70vh; }
 .site-header {
   position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
   background: rgba(10, 10, 15, 0.72);
-  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  /* 固定导航的 backdrop-filter 在滚动时每帧都要重算；12px 观感接近但开销更低 */
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--line);
 }
 .site-header .container {
@@ -91,13 +92,13 @@ main { padding-top: 64px; min-height: 70vh; }
 .brand { font-size: 20px; font-weight: 800; letter-spacing: 1px; white-space: nowrap; }
 .brand span { background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
 .nav { display: flex; gap: 28px; list-style: none; margin-left: auto; }
-.nav a { color: var(--muted); font-size: 14px; transition: color .3s; }
+.nav a { color: var(--muted); font-size: 14px; transition: color .18s; }
 .nav a:hover { color: #fff; }
 .nav-search {
   display: flex; align-items: center; gap: 8px;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid var(--line-strong); border-radius: var(--r-pill);
-  padding: 7px 14px; transition: border-color .3s, box-shadow .3s;
+  padding: 7px 14px; transition: border-color .18s, box-shadow .18s;
 }
 .nav-search:focus-within {
   border-color: rgba(254, 202, 87, 0.6);
@@ -120,10 +121,9 @@ main { padding-top: 64px; min-height: 70vh; }
   position: absolute; inset: -40px; z-index: 0;
   background-size: cover; background-position: center 35%;
   filter: blur(14px) brightness(0.42) saturate(1.2);
-  transform: scale(1.2);
-  animation: heroZoom 18s ease-in-out infinite alternate;
+  /* 原先 18s 无限缩放会让整屏模糊大图持续参与合成，滚动时容易掉帧；改为静态 */
+  transform: scale(1.22);
 }
-@keyframes heroZoom { from { transform: scale(1.18); } to { transform: scale(1.28); } }
 .hero-wall::after {
   content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
   background:
@@ -230,7 +230,10 @@ main { padding-top: 64px; min-height: 70vh; }
 .filter-btn {
   padding: 9px 20px; background: transparent; border: 1px solid var(--line-strong);
   border-radius: var(--r-pill); color: var(--muted); font-size: 14px;
-  cursor: pointer; transition: all .3s;
+  cursor: pointer;
+  /* transition: all 会把无关属性也纳入动画，改为只过渡实际变化的属性 */
+  transition: background-color .18s ease, color .18s ease, border-color .18s ease,
+              transform .18s ease, box-shadow .18s ease;
 }
 .filter-btn:hover, .filter-btn.active {
   background: #fff; color: var(--bg); border-color: #fff;
@@ -261,8 +264,8 @@ main { padding-top: 64px; min-height: 70vh; }
   position: relative; aspect-ratio: 3 / 4; border-radius: var(--r-card);
   overflow: hidden; cursor: pointer; border: 1px solid var(--line);
   display: block; background: var(--surface);
-  transition: transform .35s ease, box-shadow .35s ease;
-  animation: fadeIn .45s ease backwards;
+  transition: transform .2s ease, box-shadow .2s ease;
+  animation: fadeIn .3s ease backwards;
 }
 .poster-card:hover, .card:hover {
   transform: translateY(-10px); box-shadow: 0 24px 50px rgba(0, 0, 0, 0.55);
@@ -271,7 +274,7 @@ main { padding-top: 64px; min-height: 70vh; }
 .poster-img, .card-cover img {
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; z-index: 0;
-  transition: transform .5s ease, opacity .5s ease;
+  transition: transform .28s ease, opacity .28s ease;
 }
 /* 整卡点击区：位于图片之上、文字层之下，保证「快速预览」按钮仍可点 */
 .poster-hit { position: absolute; inset: 0; z-index: 1; display: block; }
@@ -346,7 +349,7 @@ main { padding-top: 64px; min-height: 70vh; }
   transition: transform .3s ease, box-shadow .3s ease; display: block;
 }
 .hot-card:hover { transform: translateY(-6px); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5); }
-.hot-card .poster-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; transition: transform .4s ease; }
+.hot-card .poster-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; transition: transform .28s ease; }
 .hot-card:hover .poster-img { transform: scale(1.07); }
 .hot-card .poster-overlay { z-index: 2; }
 .hot-card .poster-title { font-size: 18px; }
@@ -366,7 +369,7 @@ main { padding-top: 64px; min-height: 70vh; }
 .spotlight-card:hover { transform: translateY(-6px); box-shadow: 0 22px 48px rgba(0, 0, 0, 0.55); }
 .spotlight-bg {
   position: absolute; inset: 0; width: 100%; height: 100%;
-  object-fit: cover; z-index: -2; transition: transform .5s ease;
+  object-fit: cover; z-index: -2; transition: transform .28s ease;
 }
 .spotlight-card:hover .spotlight-bg { transform: scale(1.06); }
 .spotlight-shade {
@@ -391,7 +394,7 @@ main { padding-top: 64px; min-height: 70vh; }
   backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
   z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px;
 }
-.modal-mask.open, .modal.open { display: flex; animation: fadeIn .25s ease; }
+.modal-mask.open, .modal.open { display: flex; animation: fadeIn .18s ease; }
 .modal-card {
   background: var(--surface); border: 1px solid var(--line-strong);
   border-radius: 18px; max-width: 520px; width: 100%;
@@ -483,7 +486,7 @@ main { padding-top: 64px; min-height: 70vh; }
   position: relative; width: 100%; max-width: 340px; text-align: center;
   background: #fff; border-radius: 20px; padding: 30px 26px 22px;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
-  animation: qr-pop .22s ease;
+  animation: qr-pop .18s ease;
 }
 @keyframes qr-pop { from { transform: scale(.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 .qr-modal-box img { display: block; width: 100%; height: auto; }
@@ -702,6 +705,11 @@ button:disabled, [aria-disabled='true'] { opacity: .5; cursor: not-allowed; tran
 .service-list .icon { color: #1f9d55; }
 .service-title { display: flex; align-items: center; gap: 8px; }
 .toast { display: flex; align-items: center; gap: 10px; }
+
+/* ── 性能收尾 ───────────────────────────────
+   筛选改用 hidden 属性显隐卡片，需覆盖组件自身的 display 规则。
+   ─────────────────────────────────────────── */
+.poster-card[hidden], .card[hidden] { display: none !important; }
 .toast .icon { color: var(--accent2); }
 
 /* 纯图标按钮放大到可点击尺寸 */
