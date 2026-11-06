@@ -20,7 +20,7 @@ const ratingText = game.rating === null ? '待定' : game.rating.toFixed(1);
   data-title={game.title.toLowerCase()}
   data-tags={game.tags.join(' ').toLowerCase()}
 >
-  <img class="poster-img" src={poster} alt={`${game.title} 竖版海报`} loading="lazy" decoding="async" width="720" height="960" />
+  <img class="poster-img" src={poster} alt={`${game.title} 竖版海报`} loading="lazy" decoding="async" fetchpriority="low" width="600" height="800" />
   <a class="poster-hit" href={href} aria-label={`查看 ${game.title} 测评详情`}></a>
 
   <div class="poster-overlay">

@@ -139,6 +139,22 @@ const sitemapUrl = (Astro.site ?? new URL(BASE, 'https://example.github.io')).hr
         const behavior = Math.abs(top - window.scrollY) > 1400 ? 'instant' : 'smooth';
         window.scrollTo({ top, behavior });
       }
+      // 顶部搜索：首页 / 游戏库页已有海报墙，直接驱动同页筛选，省掉一次整页跳转
+      const navSearch = document.querySelector('.nav-search');
+      navSearch?.addEventListener('submit', (e) => {
+        const gridSearch = document.querySelector('[data-search]');
+        if (!gridSearch) return; // 详情页等无海报墙，保持正常跳转到游戏库
+        e.preventDefault();
+        const kw = (navSearch.querySelector('input')?.value ?? '').trim();
+        gridSearch.value = kw;
+        gridSearch.dispatchEvent(new Event('input', { bubbles: true }));
+        const url = new URL(window.location.href);
+        if (kw) url.searchParams.set('kw', kw); else url.searchParams.delete('kw');
+        history.replaceState(null, '', url);
+        const anchor = document.getElementById('games') ?? gridSearch.closest('[data-poster-section]');
+        if (anchor) jumpTo(anchor.getBoundingClientRect().top + window.scrollY - 84);
+      });
+
       toTop?.addEventListener('click', () => jumpTo(0));
       fab?.addEventListener('click', () => {
         const target = document.getElementById('service');

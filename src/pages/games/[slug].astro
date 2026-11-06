@@ -47,11 +47,11 @@ const breadcrumbLd = {
 
     <article class="detail">
       <div class="detail-cover">
-        <img src={poster} alt={`${game.title} 竖版海报`} decoding="async" fetchpriority="high" width="720" height="960" />
+        <img src={poster} alt={`${game.title} 竖版海报`} decoding="async" fetchpriority="high" width="600" height="800" />
       </div>
 
       <div class="detail-info">
-        <img class="detail-banner" src={game.cover} alt={`${game.title} 官方宣传图`} decoding="async" width="960" height="540" />
+        <img class="detail-banner" src={game.cover} alt={`${game.title} 官方宣传图`} decoding="async" width="800" height="450" />
         <h1>{game.title}</h1>
         <div class="card-meta">
           <span>{game.category}</span>
@@ -78,7 +78,7 @@ const breadcrumbLd = {
         {hasGallery && (
           <div class="gallery">
             {game.screenshots.map((s) => (
-              <img src={s} alt={`${game.title} 官方游戏截图`} loading="lazy" decoding="async" width="960" height="540" />
+              <img src={s} alt={`${game.title} 官方游戏截图`} loading="lazy" decoding="async" fetchpriority="low" width="720" height="405" />
             ))}
           </div>
         )}

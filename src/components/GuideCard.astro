@@ -15,7 +15,7 @@ const href = `${BASE}guides/${guide.slug}`;
 ---
 
 <article class="poster-card" data-title={title.toLowerCase()} data-tags={tags.join(' ').toLowerCase()}>
-  <img class="poster-img" src={coverImg} alt={`${title} 配图`} loading="lazy" decoding="async" width="960" height="540" />
+  <img class="poster-img" src={coverImg} alt={`${title} 配图`} loading="lazy" decoding="async" fetchpriority="low" width="800" height="450" />
   <a class="poster-hit" href={href} aria-label={`阅读攻略 ${title}`}></a>
   <div class="poster-overlay">
     <div class="poster-title">{title}</div>

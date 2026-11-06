@@ -88,13 +88,18 @@ async function emit(srcName, outPath, { width, height, fit = 'cover', quality = 
     .toFile(resolve(OUT, outPath));
 }
 
-/** 输出清单：[源文件名, 输出相对路径, 规格] */
-const COVER = { width: 960, height: 540, fit: 'cover', quality: 82 };
+/** 输出清单：[源文件名, 输出相对路径, 规格]
+ *  尺寸按「实际最大显示宽度 × 2 DPR」定，避免原先 2~4 倍过采样：
+ *    COVER  详情页 banner ≈700px / 攻略封面 760px / 预览弹窗 480px → 800px
+ *    ICON   主推卡 56px、海报内嵌 92px → 128px
+ *    SHOT   详情页画廊两列，单张 ≈340px → 720px
+ */
+const COVER = { width: 800, height: 450, fit: 'cover', quality: 76 };
 // Hero / 主推卡背景只作模糊铺底与暗遮罩，1440×810 q78 已足够；
 // 相比原 1600×900 q86 可省约一半体积，直接缩短首屏 LCP。
 const BANNER = { width: 1440, height: 810, fit: 'cover', quality: 78 };
-const ICON = { width: 256, height: 256, fit: 'cover', quality: 85 };
-const SHOT = { width: 960, height: 540, fit: 'contain', quality: 82, bg: '#0e1016' };
+const ICON = { width: 128, height: 128, fit: 'cover', quality: 80 };
+const SHOT = { width: 720, height: 405, fit: 'contain', quality: 74, bg: '#0e1016' };
 
 const jobs = [
   // ===== 两款主推：封面 / Hero 大图 / 图标 =====

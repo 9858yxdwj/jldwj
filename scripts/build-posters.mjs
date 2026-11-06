@@ -6,7 +6,7 @@
  * 好处：不裁掉官方横图的主体信息，也不会混入与游戏不对应的第三方图片。
  *
  * 用法：node scripts/build-posters.mjs
- * 输出：public/images/posters/<slug>.webp（720×960）
+ * 输出：public/images/posters/<slug>.webp（600×800；合成仍用 720×960 坐标后统一缩放）
  * 依赖：sharp、src/data/games.json、public/images/covers|icons
  */
 import sharp from 'sharp';
@@ -20,6 +20,10 @@ mkdirSync(OUT, { recursive: true });
 const games = JSON.parse(readFileSync(join(ROOT, 'src', 'data', 'games.json'), 'utf8'));
 const W = 720;
 const H = 960;
+// 输出尺寸：卡片实际宽约 285px（DPR2 ≈570px），600px 足够。
+// 首页 GameCard / HotScroll / 详情页共用同一 URL，浏览器缓存可复用，不额外发请求。
+const OUT_W = 600;
+const OUT_H = 800;
 
 // 底部暗渐变：0.55 起轻微压暗，0.78 起接近纯黑，保证 HTML 文字可读
 const shadeSvg = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
@@ -97,9 +101,12 @@ for (const g of games) {
   layers.push({ input: frame, left: fgLeft, top: fgTop });
   layers.push({ input: shade, left: 0, top: 0 });
 
-  await sharp({ create: { width: W, height: H, channels: 3, background: '#0a0a0f' } })
-    .composite(layers)
-    .webp({ quality: 82 })
+  const canvas = await sharp({
+    create: { width: W, height: H, channels: 3, background: '#0a0a0f' },
+  }).composite(layers).png().toBuffer();
+  await sharp(canvas)
+    .resize(OUT_W, OUT_H)
+    .webp({ quality: 76 })
     .toFile(join(OUT, `${g.slug}.webp`));
 
   ok++;

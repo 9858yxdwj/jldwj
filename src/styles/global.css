@@ -292,8 +292,10 @@ main { padding-top: 64px; min-height: 70vh; }
 .poster-meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .poster-rating, .rating { color: var(--accent2); font-size: 14px; font-weight: 700; }
 .poster-tag {
-  padding: 4px 10px; background: rgba(255, 255, 255, 0.16);
-  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  /* 每张卡一个 backdrop-filter 会让首页十余个模糊层在滚动时同时重算；
+     改用半透明实色 + 细边框，观感接近但无需逐帧模糊合成 */
+  padding: 4px 10px; background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 6px; font-size: 11px; white-space: nowrap;
 }
 .poster-actions {
@@ -710,6 +712,8 @@ button:disabled, [aria-disabled='true'] { opacity: .5; cursor: not-allowed; tran
    筛选改用 hidden 属性显隐卡片，需覆盖组件自身的 display 规则。
    ─────────────────────────────────────────── */
 .poster-card[hidden], .card[hidden] { display: none !important; }
+/* 卡片内部布局/绘制自成一体，滚动或 hover 时不牵动整页重排 */
+.poster-card, .hot-card { contain: layout style; }
 .toast .icon { color: var(--accent2); }
 
 /* 纯图标按钮放大到可点击尺寸 */

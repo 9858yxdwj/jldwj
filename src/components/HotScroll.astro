@@ -20,7 +20,7 @@ const hot = games.filter((g) => g.badge === 'pick' || g.badge === 'hot').slice(0
         class="poster-img"
         src={g.poster ?? asset(`/images/posters/${g.slug}.webp`)}
         alt={`${g.title} 竖版海报`}
-        loading="lazy" decoding="async" width="720" height="960"
+        loading="lazy" decoding="async" fetchpriority="low" width="600" height="800"
       />
       <div class="poster-overlay">
         <div class="poster-title">{g.title}</div>

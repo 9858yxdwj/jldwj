@@ -14,7 +14,7 @@
   - `src/utils/asset.ts`：base 感知路径，保证项目页下资源不 404
 - 结构化数据：`VideoGame` / `Article` / `BreadcrumbList` / `WebSite`
 - SEO：`robots.txt` 端点、sitemap、canonical、OG/Twitter、自定义 404
-- 交互：纯前端胶囊筛选 + 关键词搜索 + 快速预览弹窗 + 客服二维码放大 + 悬浮按钮 / Toast
+- 交互：纯前端胶囊筛选 + 顶部/游戏库双搜索（同页即时筛选）+ 快速预览弹窗 + 客服二维码放大 + 悬浮按钮 / Toast
 - 性能：站内链接预取、首屏 LCP 图 preload / fetchpriority、滚动与筛选节流、静态渲染开销收敛
 - 部署：GitHub Actions 自动构建并发布到 GitHub Pages
 - 收录：可选百度资源平台主动推送（需配置密钥）
@@ -56,11 +56,11 @@
 │       ├── robots.txt.ts / 404.astro
 ├── public/favicon.svg       # 站点图标（避免浏览器盲请求 /favicon.ico 产生 404）
 └── public/images/
-    ├── covers/    # 8 张 16:9 封面
-    ├── posters/   # 8 张 3:4 竖版海报（海报墙卡片主视觉）
-    ├── banners/   # 2 张主推大图
-    ├── icons/     # 8 张游戏图标
-    ├── shots/     # 9 张官方游戏截图
+    ├── covers/    # 8 张 800×450 封面
+    ├── posters/   # 8 张 600×800 竖版海报（海报墙卡片主视觉）
+    ├── banners/   # 2 张 1440×810 主推大图
+    ├── icons/     # 8 张 128×128 游戏图标
+    ├── shots/     # 9 张 720×405 官方游戏截图
     └── service-qr.png  # 客服微信公众号二维码（290×290 无损 PNG，含白色静区）
 ```
 
@@ -77,9 +77,10 @@
 
 - **切页**：`astro.config.mjs` 开启 `prefetch: { prefetchAll: true, defaultStrategy: 'viewport' }`，链接进入视口 300ms 后由 Astro 注入 `<link rel="prefetch">` 提前取回目标页 HTML；纯锚点链接用 `data-astro-prefetch="false"` 排除。不依赖 ClientRouter，静态多页站也能接近瞬时切换。
 - **首屏**：`BaseLayout` 的 `preloadImage` 给 Hero 背景（CSS 背景图浏览器发现得晚）加 `<link rel="preload" as="image" fetchpriority="high">`；首张主推大图 `loading="eager" fetchpriority="high"`，其余 lazy；游戏详情 / 攻略详情首图同样标 high。
-- **图片**：`build-images.mjs` 的 `BANNER` 改为 1440×810 / q78（原 1600×900 / q86），两张主推大图由 199KB + 136KB 降到 126KB + 86KB；改参数后需重跑该脚本（依赖 `.assets-src/` 原始素材）再 build。
-- **渲染**：移除 Hero 的 18s 无限缩放动画（整屏模糊大图会持续参与合成）、导航 `backdrop-filter` 20px → 12px、`transition: all` 改为具体属性、卡片淡入 0.45s → 0.3s 且错峰封顶 0.14s。
-- **交互**：滚动监听用 rAF 节流且只在显隐状态翻转时写 DOM；长距离滚动（>1400px）改为瞬时，避免平滑动画 1s+ 的迟钝感；筛选预计算检索文本、改用 `hidden` 属性显隐卡片（配套 CSS `.poster-card[hidden]`）、连续输入合并到一帧；快速预览弹窗大图在 hover / focus 时预热缓存。
+- **图片**：规格统一按「实际最大显示宽度 × 2 DPR」定，避免过采样。`build-images.mjs`：COVER 800×450 q76、BANNER 1440×810 q78、ICON 128×128 q80、SHOT 720×405 q74；`build-posters.mjs` 先按 720×960 合成再缩到 600×800 q76（合成坐标不变）。全部图片 **2.2MB → 1.4MB**、构建产物 **2.5MB → 1.7MB**；二维码 PNG 保持无损以保扫码识别率。改参数后需依次重跑两个脚本（依赖 `.assets-src/` 原始素材）再 build。
+- **图片加载优先级**：首屏 Hero / 主推首图 / 详情与攻略首图 `fetchpriority="high"`，其余 36 处懒加载图一律 `low`，避免与 LCP 抢带宽；所有 `<img>` 的 width/height 与实际文件一致，不产生 CLS。首页 GameCard、HotScroll 与详情页共用同一海报 URL，浏览器缓存可复用，不额外发请求。
+- **渲染**：移除 Hero 的 18s 无限缩放动画（整屏模糊大图会持续参与合成）、导航 `backdrop-filter` 20px → 12px、**去掉卡片分类标签的 `backdrop-filter`**（原来首页十余个模糊层在滚动时同时重算，改半透明实色 + 细边框）、卡片加 `contain: layout style`、`transition: all` 改为具体属性、卡片淡入 0.45s → 0.3s 且错峰封顶 0.14s。
+- **交互**：顶部导航搜索在首页 / 游戏库页直接驱动同页海报墙筛选（`preventDefault` + 派发 `input` + `history.replaceState` 同步 URL），不再整页跳转；无海报墙的详情页仍正常跳到游戏库。滚动监听用 rAF 节流且只在显隐状态翻转时写 DOM；长距离滚动（>1400px）改为瞬时；筛选预计算检索文本、改用 `hidden` 属性显隐卡片（配套 CSS `.poster-card[hidden]`）、连续输入合并到一帧；快速预览弹窗大图在 hover / focus 时预热缓存。
 - `public/favicon.svg` 显式声明图标，消除浏览器自动请求 `/favicon.ico` 的 404。
 
 ## 本地开发
