@@ -48,7 +48,19 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: 84px; }
+/* 不做全局平滑滚动：原生锚点跳转、focus 引起的滚动都会被强制做动画，
+   体感像「点了要等一下」。需要平滑的地方由 JS 显式 scrollTo({behavior:'smooth'}) 控制。 */
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: 84px; }
+
+/* SVG sprite 定义：0 尺寸 + overflow 隐藏，不能用 display:none（会让 <use> 失效） */
+.icon-sprite { position: absolute; width: 0; height: 0; overflow: hidden; pointer-events: none; }
+
+/* ClientRouter 切页过渡默认 180ms，压到 90ms：内容替换要「跟手」，不是看完动画 */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 90ms !important;
+  animation-delay: 0ms !important;
+}
 
 body {
   font-family: var(--font-sans);
@@ -746,4 +758,12 @@ button:disabled, [aria-disabled='true'] { opacity: .5; cursor: not-allowed; tran
     padding: 0; border-radius: 50%; font-size: 0; gap: 0;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
   }
+}
+
+/* 不支持 View Transitions API 的浏览器走 Astro fallback 动画，同样压短 */
+[data-astro-transition-fallback] { animation-duration: 90ms !important; }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) { animation: none !important; animation-duration: 0s !important; }
+  [data-astro-transition-fallback] { animation: none !important; }
 }

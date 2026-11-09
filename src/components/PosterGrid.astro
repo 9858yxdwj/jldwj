@@ -78,132 +78,146 @@ const {
 </div>
 
 <script>
-  document.querySelectorAll<HTMLElement>('[data-poster-section]').forEach((root) => {
-    const grid = root.querySelector<HTMLElement>('[data-grid]');
-    if (!grid) return;
-    const cards = Array.from(grid.querySelectorAll<HTMLElement>('.poster-card'));
-    const catBtns = Array.from(root.querySelectorAll<HTMLButtonElement>('.filter-btn'));
-    const search = root.querySelector<HTMLInputElement>('[data-search]');
-    const countEl = root.querySelector<HTMLElement>('[data-count]');
-    const emptyEl = root.querySelector<HTMLElement>('[data-empty]');
-    const modal = root.querySelector<HTMLElement>('[data-modal]');
+  // ClientRouter 下 bundle 脚本只执行一次：每次页面替换后重新初始化当前页的海报墙。
+  // document 级 keydown 只注册一次并动态查询弹窗；其余监听挂在会被替换的元素上，不会累积。
+  const warmed = new Set<string>();
+  const lastFocusMap = new WeakMap<HTMLElement, HTMLElement | null>();
+  let globalsBound = false;
 
-    // 预计算检索文本：避免每次按键都重新拼接字符串并 toLowerCase
-    const index = cards.map((el) => ({
-      el,
-      cat: el.dataset.category ?? '',
-      hay: `${el.dataset.title ?? ''} ${el.dataset.tags ?? ''} ${el.dataset.category ?? ''}`.toLowerCase(),
-    }));
-    // 淡入错峰收敛在 0.14s 内，长列表不再「慢慢冒出来」
-    cards.forEach((c, i) => { c.style.animationDelay = `${Math.min(i, 7) * 0.02}s`; });
+  function closeModal(modal: HTMLElement) {
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    const prev = lastFocusMap.get(modal);
+    if (prev && prev.isConnected) prev.focus();
+  }
 
-    let currentCat = '全部';
-    let keyword = '';
-    function apply() {
-      let visible = 0;
-      for (const item of index) {
-        const show = (currentCat === '全部' || item.cat === currentCat) &&
-                     (!keyword || item.hay.includes(keyword));
-        // hidden 属性不写内联 style，也不覆盖组件自身的 display 规则
-        item.el.hidden = !show;
-        if (show) visible++;
+  function initPosterSections() {
+    if (!globalsBound) {
+      globalsBound = true;
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        document.querySelectorAll<HTMLElement>('[data-modal].open').forEach((m) => closeModal(m));
+      });
+    }
+
+    document.querySelectorAll<HTMLElement>('[data-poster-section]').forEach((root) => {
+      const grid = root.querySelector<HTMLElement>('[data-grid]');
+      if (!grid) return;
+      const cards = Array.from(grid.querySelectorAll<HTMLElement>('.poster-card'));
+      const catBtns = Array.from(root.querySelectorAll<HTMLButtonElement>('.filter-btn'));
+      const search = root.querySelector<HTMLInputElement>('[data-search]');
+      const countEl = root.querySelector<HTMLElement>('[data-count]');
+      const emptyEl = root.querySelector<HTMLElement>('[data-empty]');
+      const modal = root.querySelector<HTMLElement>('[data-modal]');
+
+      // 预计算检索文本：避免每次按键都重新拼接字符串并 toLowerCase
+      const index = cards.map((el) => ({
+        el,
+        cat: el.dataset.category ?? '',
+        hay: `${el.dataset.title ?? ''} ${el.dataset.tags ?? ''} ${el.dataset.category ?? ''}`.toLowerCase(),
+      }));
+      // 淡入错峰收敛在 0.14s 内，长列表不再「慢慢冒出来」
+      cards.forEach((c, i) => { c.style.animationDelay = `${Math.min(i, 7) * 0.02}s`; });
+
+      let currentCat = '全部';
+      let keyword = '';
+      function apply() {
+        let visible = 0;
+        for (const item of index) {
+          const show = (currentCat === '全部' || item.cat === currentCat) &&
+                       (!keyword || item.hay.includes(keyword));
+          // hidden 属性不写内联 style，也不覆盖组件自身的 display 规则
+          item.el.hidden = !show;
+          if (show) visible++;
+        }
+        if (countEl) countEl.textContent = `共 ${visible} 款`;
+        if (emptyEl) emptyEl.hidden = visible !== 0;
       }
-      if (countEl) countEl.textContent = `共 ${visible} 款`;
-      if (emptyEl) emptyEl.hidden = visible !== 0;
-    }
-    // 连续输入合并到一帧，避免每个按键都触发一次重排
-    let queued = false;
-    function scheduleApply() {
-      if (queued) return;
-      queued = true;
-      requestAnimationFrame(() => { queued = false; apply(); });
-    }
+      // 连续输入合并到一帧，避免每个按键都触发一次重排
+      let queued = false;
+      function scheduleApply() {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(() => { queued = false; apply(); });
+      }
 
-    // 支持首页分类入口 / 导航栏搜索带来的 ?cat= & ?kw=
-    const params = new URLSearchParams(window.location.search);
-    const presetCat = params.get('cat');
-    const presetKw = params.get('kw');
-    if (presetCat) {
-      currentCat = presetCat;
-      catBtns.forEach((b) => b.classList.toggle('active', b.dataset.cat === presetCat));
-    }
-    if (presetKw && search) {
-      keyword = presetKw.trim().toLowerCase();
-      search.value = presetKw;
-    }
-    // 筛选按钮是切换按钮，同步 aria-pressed 供读屏识别选中态
-    catBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.classList.contains('active'))));
+      // 支持首页分类入口 / 导航栏搜索带来的 ?cat= & ?kw=
+      const params = new URLSearchParams(window.location.search);
+      const presetCat = params.get('cat');
+      const presetKw = params.get('kw');
+      if (presetCat) {
+        currentCat = presetCat;
+        catBtns.forEach((b) => b.classList.toggle('active', b.dataset.cat === presetCat));
+      }
+      if (presetKw && search) {
+        keyword = presetKw.trim().toLowerCase();
+        search.value = presetKw;
+      }
+      // 筛选按钮是切换按钮，同步 aria-pressed 供读屏识别选中态
+      catBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.classList.contains('active'))));
 
-    catBtns.forEach((btn) => btn.addEventListener('click', () => {
-      currentCat = btn.dataset.cat ?? '全部';
-      catBtns.forEach((b) => {
-        const on = b === btn;
-        b.classList.toggle('active', on);
-        b.setAttribute('aria-pressed', String(on));
+      catBtns.forEach((btn) => btn.addEventListener('click', () => {
+        currentCat = btn.dataset.cat ?? '全部';
+        catBtns.forEach((b) => {
+          const on = b === btn;
+          b.classList.toggle('active', on);
+          b.setAttribute('aria-pressed', String(on));
+        });
+        apply();
+      }));
+      search?.addEventListener('input', () => {
+        keyword = (search.value ?? '').trim().toLowerCase();
+        scheduleApply();
       });
       apply();
-    }));
-    search?.addEventListener('input', () => {
-      keyword = (search.value ?? '').trim().toLowerCase();
-      scheduleApply();
-    });
-    apply();
 
-    // ── 快速预览弹窗 ──
-    const mImg = modal?.querySelector<HTMLImageElement>('[data-m-img]');
-    const mTitle = modal?.querySelector<HTMLElement>('[data-m-title]');
-    const mTags = modal?.querySelector<HTMLElement>('[data-m-tags]');
-    const mDesc = modal?.querySelector<HTMLElement>('[data-m-desc]');
-    const mDetail = modal?.querySelector<HTMLAnchorElement>('[data-m-detail]');
-    let lastFocus: HTMLElement | null = null;
+      // ── 快速预览弹窗 ──
+      const mImg = modal?.querySelector<HTMLImageElement>('[data-m-img]');
+      const mTitle = modal?.querySelector<HTMLElement>('[data-m-title]');
+      const mTags = modal?.querySelector<HTMLElement>('[data-m-tags]');
+      const mDesc = modal?.querySelector<HTMLElement>('[data-m-desc]');
+      const mDetail = modal?.querySelector<HTMLAnchorElement>('[data-m-detail]');
 
-    function closeModal() {
-      if (!modal) return;
-      modal.classList.remove('open');
-      modal.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
-      lastFocus?.focus();
-    }
-    function openModal(d: DOMStringMap) {
-      if (!modal) return;
-      lastFocus = document.activeElement as HTMLElement | null;
-      if (mImg) { mImg.src = d.pCover ?? ''; mImg.alt = `${d.pTitle ?? ''} 官方宣传图`; }
-      if (mTitle) mTitle.textContent = d.pTitle ?? '';
-      if (mDesc) mDesc.textContent = d.pDesc ?? '';
-      if (mTags) {
-        const items = [d.pRating ? `★ ${d.pRating}` : '', d.pCat ?? '', ...(d.pTags ?? '').split('、')].filter(Boolean);
-        mTags.replaceChildren(...items.map((t) => {
-          const span = document.createElement('span');
-          span.textContent = t;
-          return span;
-        }));
+      function openModal(d: DOMStringMap) {
+        if (!modal) return;
+        lastFocusMap.set(modal, document.activeElement as HTMLElement | null);
+        if (mImg) { mImg.src = d.pCover ?? ''; mImg.alt = `${d.pTitle ?? ''} 官方宣传图`; }
+        if (mTitle) mTitle.textContent = d.pTitle ?? '';
+        if (mDesc) mDesc.textContent = d.pDesc ?? '';
+        if (mTags) {
+          const items = [d.pRating ? `★ ${d.pRating}` : '', d.pCat ?? '', ...(d.pTags ?? '').split('、')].filter(Boolean);
+          mTags.replaceChildren(...items.map((t) => {
+            const span = document.createElement('span');
+            span.textContent = t;
+            return span;
+          }));
+        }
+        if (mDetail) mDetail.href = d.pHref ?? '#';
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        modal.querySelector<HTMLButtonElement>('[data-m-close]')?.focus();
       }
-      if (mDetail) mDetail.href = d.pHref ?? '#';
-      modal.classList.add('open');
-      modal.setAttribute('aria-hidden', 'false');
-      document.body.style.overflow = 'hidden';
-      modal.querySelector<HTMLButtonElement>('[data-m-close]')?.focus();
-    }
 
-    // 弹窗大图预热：悬停 / 聚焦时先暖缓存，点击后基本瞬时显示
-    const warmed = new Set<string>();
-    function warmCover(btn: HTMLButtonElement) {
-      const src = btn.dataset.pCover;
-      if (!src || warmed.has(src)) return;
-      warmed.add(src);
-      const img = new Image();
-      img.decoding = 'async';
-      img.src = src;
-    }
-    root.querySelectorAll<HTMLButtonElement>('[data-preview]').forEach((btn) => {
-      btn.addEventListener('pointerenter', () => warmCover(btn));
-      btn.addEventListener('focus', () => warmCover(btn));
-      btn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); openModal(btn.dataset); });
+      // 弹窗大图预热：悬停 / 聚焦时先暖缓存，点击后基本瞬时显示
+      function warmCover(btn: HTMLButtonElement) {
+        const src = btn.dataset.pCover;
+        if (!src || warmed.has(src)) return;
+        warmed.add(src);
+        const img = new Image();
+        img.decoding = 'async';
+        img.src = src;
+      }
+      root.querySelectorAll<HTMLButtonElement>('[data-preview]').forEach((btn) => {
+        btn.addEventListener('pointerenter', () => warmCover(btn));
+        btn.addEventListener('focus', () => warmCover(btn));
+        btn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); openModal(btn.dataset); });
+      });
+      modal?.querySelector('[data-m-close]')?.addEventListener('click', () => { if (modal) closeModal(modal); });
+      modal?.addEventListener('click', (e) => { if (e.target === modal && modal) closeModal(modal); });
     });
-    modal?.querySelector('[data-m-close]')?.addEventListener('click', closeModal);
-    modal?.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && modal?.classList.contains('open')) closeModal();
-    });
-  });
+  }
+
+  document.addEventListener('astro:page-load', initPosterSections);
 </script>

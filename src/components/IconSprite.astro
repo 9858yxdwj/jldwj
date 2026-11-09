@@ -1,0 +1,13 @@
+---
+/**
+ * 每页输出一份 SVG symbol 定义，Icon.astro 通过 <use href="#i-xxx"> 复用。
+ * 不能用 display:none（部分浏览器会让 <use> 引用失效），用 0 尺寸 + overflow 隐藏。
+ */
+import { iconShapes, iconNames } from '../data/icons';
+---
+
+<svg class="icon-sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+  {iconNames.map((name) => (
+    <symbol id={`i-${name}`} viewBox="0 0 24 24"><Fragment set:html={iconShapes[name]} /></symbol>
+  ))}
+</svg>

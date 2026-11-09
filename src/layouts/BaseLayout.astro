@@ -1,6 +1,8 @@
 ---
 import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
 import Icon from '../components/Icon.astro';
+import IconSprite from '../components/IconSprite.astro';
 
 interface Props {
   title?: string;
@@ -28,7 +30,7 @@ const sitemapUrl = (Astro.site ?? new URL(BASE, 'https://example.github.io')).hr
 ---
 
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-base={BASE}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -62,9 +64,13 @@ const sitemapUrl = (Astro.site ?? new URL(BASE, 'https://example.github.io')).hr
     {/* Hero 是 CSS 背景图，浏览器要等 CSS + DOM 解析完才发现它；显式 preload 让它与 CSS 并行下载 */}
     {preloadImage && <link rel="preload" as="image" href={preloadImage} fetchpriority="high" />}
 
+    {/* 站内点击只替换 body，不再整页刷新；配合 prefetch 的预取缓存做到近乎瞬时切页 */}
+    <ClientRouter />
+
     <slot name="head" />
   </head>
   <body>
+    <IconSprite />
     <a class="skip-link" href="#main">跳到主内容</a>
 
     <header class="site-header">
@@ -101,103 +107,119 @@ const sitemapUrl = (Astro.site ?? new URL(BASE, 'https://example.github.io')).hr
     <button class="to-top" id="toTop" type="button" aria-label="回到顶部"><Icon name="arrow-up" size={22} /></button>
     <div class="toast" id="toast" role="status" aria-live="polite"><Icon name="info" size={18} /><span id="toastText"></span></div>
 
-    <script define:vars={{ base: BASE }}>
-      const toast = document.getElementById('toast');
-      const toastText = document.getElementById('toastText');
+    <script>
+      import { navigate } from 'astro:transitions/client';
+
+      // ClientRouter 下 bundle 脚本只执行一次：所有初始化必须挂到 astro:page-load，
+      // 元素级事件在每次 body 替换后重新绑定；document / window 级监听只注册一次，
+      // 内部一律动态查询当前 DOM，避免监听器随导航累积。
+      const BASE = document.documentElement.dataset.base || '/';
+
       let toastTimer;
+      let scrollQueued = false, fabShown = false, topShown = false;
+      let qrPrevFocus = null;
+      let globalsBound = false;
+
       function showToast(msg) {
-        if (!toast || !toastText) return;
-        toastText.textContent = msg;
+        const toast = document.getElementById('toast');
+        const text = document.getElementById('toastText');
+        if (!toast || !text) return;
+        text.textContent = msg;
         toast.classList.add('show');
         clearTimeout(toastTimer);
         toastTimer = setTimeout(() => toast.classList.remove('show'), 1900);
       }
-      window.showToast = showToast;
-      document.addEventListener('toast', (e) => showToast(e.detail));
 
-      const fab = document.getElementById('fab');
-      const toTop = document.getElementById('toTop');
-      // 滚动用 rAF 节流，且只在显隐状态翻转时写 DOM，避免每帧触发样式计算
-      let scrollQueued = false, fabShown = false, topShown = false;
+      // 滚动用 rAF 节流，且只在显隐状态翻转时写 DOM
       function readScroll() {
         scrollQueued = false;
         const y = window.scrollY;
         const showFab = y > 300, showTop = y > 400;
-        if (showFab !== fabShown) { fabShown = showFab; fab?.classList.toggle('show', showFab); }
-        if (showTop !== topShown) { topShown = showTop; toTop?.classList.toggle('show', showTop); }
+        if (showFab !== fabShown) { fabShown = showFab; document.getElementById('fab')?.classList.toggle('show', showFab); }
+        if (showTop !== topShown) { topShown = showTop; document.getElementById('toTop')?.classList.toggle('show', showTop); }
       }
       function onScroll() {
         if (scrollQueued) return;
         scrollQueued = true;
         requestAnimationFrame(readScroll);
       }
-      window.addEventListener('scroll', onScroll, { passive: true });
-      readScroll();
-
       // 长距离平滑滚动要 1s 以上，体感像「点了没反应」；超过阈值改为瞬时
       function jumpTo(top) {
         const behavior = Math.abs(top - window.scrollY) > 1400 ? 'instant' : 'smooth';
         window.scrollTo({ top, behavior });
       }
-      // 顶部搜索：首页 / 游戏库页已有海报墙，直接驱动同页筛选，省掉一次整页跳转
-      const navSearch = document.querySelector('.nav-search');
-      navSearch?.addEventListener('submit', (e) => {
-        const gridSearch = document.querySelector('[data-search]');
-        if (!gridSearch) return; // 详情页等无海报墙，保持正常跳转到游戏库
-        e.preventDefault();
-        const kw = (navSearch.querySelector('input')?.value ?? '').trim();
-        gridSearch.value = kw;
-        gridSearch.dispatchEvent(new Event('input', { bubbles: true }));
-        const url = new URL(window.location.href);
-        if (kw) url.searchParams.set('kw', kw); else url.searchParams.delete('kw');
-        history.replaceState(null, '', url);
-        const anchor = document.getElementById('games') ?? gridSearch.closest('[data-poster-section]');
-        if (anchor) jumpTo(anchor.getBoundingClientRect().top + window.scrollY - 84);
-      });
 
-      toTop?.addEventListener('click', () => jumpTo(0));
-      fab?.addEventListener('click', () => {
-        const target = document.getElementById('service');
-        if (target) {
-          jumpTo(target.getBoundingClientRect().top + window.scrollY - 84);
-        } else {
-          window.location.href = base + '#service';
-        }
-      });
-
-      // 客服二维码放大弹窗（Esc / 遮罩关闭、焦点回归）
-      // 注意：define:vars 的内联脚本不会被 TypeScript 编译，此处只能写纯 JS
-      const qrModal = document.querySelector('[data-qr-modal]');
-      let qrPrevFocus = null;
-      const openQr = () => {
-        if (!qrModal) return;
+      function openQr() {
+        const modal = document.querySelector('[data-qr-modal]');
+        if (!modal) return;
         qrPrevFocus = document.activeElement;
-        qrModal.classList.add('open');
+        modal.classList.add('open');
         document.body.style.overflow = 'hidden';
-        qrModal.querySelector('[data-qr-close]')?.focus();
-      };
-      const closeQr = () => {
-        if (!qrModal) return;
-        qrModal.classList.remove('open');
-        document.body.style.overflow = '';
-        qrPrevFocus?.focus();
-      };
-      document.querySelectorAll('[data-qr-open]').forEach((btn) => btn.addEventListener('click', openQr));
-      qrModal?.querySelector('[data-qr-close]')?.addEventListener('click', closeQr);
-      qrModal?.addEventListener('click', (e) => { if (e.target === qrModal) closeQr(); });
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && qrModal?.classList.contains('open')) closeQr();
-      });
-
-      // 锚点跳转补偿固定导航高度（#official 为旧锚点，兼容映射到客服区）
-      const hash = window.location.hash === '#official' ? '#service' : window.location.hash;
-      if (hash) {
-        const el = document.querySelector(hash);
-        if (el) requestAnimationFrame(() => window.scrollTo({
-          top: el.getBoundingClientRect().top + window.scrollY - 84,
-          behavior: 'instant',
-        }));
+        modal.querySelector('[data-qr-close]')?.focus();
       }
+      function closeQr() {
+        const modal = document.querySelector('[data-qr-modal].open');
+        if (!modal) return;
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+        if (qrPrevFocus && qrPrevFocus.isConnected) qrPrevFocus.focus();
+        qrPrevFocus = null;
+      }
+
+      function initPage() {
+        if (!globalsBound) {
+          globalsBound = true;
+          window.showToast = showToast;
+          document.addEventListener('toast', (e) => showToast(e.detail));
+          window.addEventListener('scroll', onScroll, { passive: true });
+          document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeQr(); });
+        }
+
+        // 顶部搜索：有海报墙的页面同页即时筛选；其它页面用 router 无刷新跳到游戏库
+        const navSearch = document.querySelector('.nav-search');
+        navSearch?.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const kw = (navSearch.querySelector('input')?.value ?? '').trim();
+          const gridSearch = document.querySelector('[data-search]');
+          if (!gridSearch) {
+            navigate(`${BASE}library${kw ? `?kw=${encodeURIComponent(kw)}` : ''}`);
+            return;
+          }
+          gridSearch.value = kw;
+          gridSearch.dispatchEvent(new Event('input', { bubbles: true }));
+          const url = new URL(window.location.href);
+          if (kw) url.searchParams.set('kw', kw); else url.searchParams.delete('kw');
+          history.replaceState(null, '', url);
+          const anchor = document.getElementById('games') ?? gridSearch.closest('[data-poster-section]');
+          if (anchor) jumpTo(anchor.getBoundingClientRect().top + window.scrollY - 84);
+        });
+
+        document.getElementById('toTop')?.addEventListener('click', () => jumpTo(0));
+        document.getElementById('fab')?.addEventListener('click', () => {
+          const target = document.getElementById('service');
+          if (target) jumpTo(target.getBoundingClientRect().top + window.scrollY - 84);
+          else window.location.href = BASE + '#service';
+        });
+
+        // 客服二维码放大弹窗（Esc / 遮罩关闭、焦点回归）
+        document.querySelectorAll('[data-qr-open]').forEach((btn) => btn.addEventListener('click', openQr));
+        const qrModal = document.querySelector('[data-qr-modal]');
+        qrModal?.querySelector('[data-qr-close]')?.addEventListener('click', closeQr);
+        qrModal?.addEventListener('click', (e) => { if (e.target === qrModal) closeQr(); });
+
+        // 锚点跳转补偿固定导航高度（#official 为旧锚点，兼容映射到客服区）
+        const hash = window.location.hash === '#official' ? '#service' : window.location.hash;
+        if (hash) {
+          const el = document.getElementById(hash.slice(1));
+          if (el) requestAnimationFrame(() => window.scrollTo({
+            top: el.getBoundingClientRect().top + window.scrollY - 84,
+            behavior: 'instant',
+          }));
+        }
+        readScroll();
+      }
+
+      document.addEventListener('astro:page-load', initPage);
     </script>
   </body>
 </html>

@@ -14,8 +14,8 @@
   - `src/utils/asset.ts`：base 感知路径，保证项目页下资源不 404
 - 结构化数据：`VideoGame` / `Article` / `BreadcrumbList` / `WebSite`
 - SEO：`robots.txt` 端点、sitemap、canonical、OG/Twitter、自定义 404
-- 交互：纯前端胶囊筛选 + 顶部/游戏库双搜索（同页即时筛选）+ 快速预览弹窗 + 客服二维码放大 + 悬浮按钮 / Toast
-- 性能：站内链接预取、首屏 LCP 图 preload / fetchpriority、滚动与筛选节流、静态渲染开销收敛
+- 交互：胶囊筛选 + 顶部/游戏库双搜索（同页即时筛选）+ 快速预览弹窗 + 客服二维码放大 + 悬浮按钮 / Toast
+- 性能：ClientRouter 站内无刷新切页 + 链接预取、首屏 LCP 图 preload / fetchpriority、SVG 图标 sprite 化、滚动与筛选节流、静态渲染开销收敛
 - 部署：GitHub Actions 自动构建并发布到 GitHub Pages
 - 收录：可选百度资源平台主动推送（需配置密钥）
 
@@ -33,13 +33,15 @@
 ├── src/
 │   ├── data/games.ts              # 类型化 schema + 主推/分类派生 + base 感知图片路径
 │   ├── data/games.json            # 游戏数据（改这里换内容）
+│   ├── data/icons.ts              # 18 个线性图标的路径定义（Icon / IconSprite 共用）
 │   ├── utils/asset.ts             # public 资源 base 感知路径工具
 │   ├── content.config.ts          # 攻略集合 schema
 │   ├── content/guides/*.md        # 攻略文章（Markdown）
 │   ├── styles/global.css          # 海报墙 design tokens + 组件样式 + 响应式
-│   ├── layouts/BaseLayout.astro   # 固定毛玻璃导航 / 全局搜索 / 页脚 / 悬浮交互
+│   ├── layouts/BaseLayout.astro   # 固定毛玻璃导航 / ClientRouter / 全局脚本 / 页脚 / 悬浮交互
 │   ├── components/
-│   │   ├── Icon.astro             # 统一线性 SVG 图标（按钮 / 功能图标，currentColor）
+│   │   ├── Icon.astro             # 统一线性 SVG 图标（<use> 引用 sprite，currentColor）
+│   │   ├── IconSprite.astro       # 每页输出一次的 <symbol> 定义集合
 │   │   ├── PosterGrid.astro       # 海报网格 + 胶囊筛选 + 搜索 + 快速预览弹窗
 │   │   ├── GameCard.astro         # 竖版游戏海报卡
 │   │   ├── GuideCard.astro        # 竖版攻略海报卡
@@ -68,20 +70,25 @@
 
 ### 按钮与图标规范
 
-- 交互控件里的图标统一用 `Icon.astro` 的内联 SVG（单色 `currentColor`，24×24 viewBox），不依赖系统 emoji 字体；标题、空状态等装饰性 emoji 保留。
-- 新增图标：在 `Icon.astro` 的 `shapes` 中加一条路径，用 `<Icon name="..." size={16} />` 调用；纯图标按钮必须带 `aria-label`。
+- 交互控件里的图标统一用 `Icon.astro`（单色 `currentColor`，24×24 viewBox），不依赖系统 emoji 字体；标题、空状态等装饰性 emoji 保留。
+- 图标以 **SVG sprite** 方式复用：路径定义在 `src/data/icons.ts`，`IconSprite.astro` 在 `BaseLayout` 里每页输出一次 `<symbol>`，`Icon.astro` 只输出一个 `<use href="#i-xxx">`。重复图标不再把整段 `path` 复制进 HTML，DOM 节点更少、每次切页要解析的文档更小。
+- 新增图标：在 `src/data/icons.ts` 的 `iconShapes` 里加一条路径（sprite 会自动收录），用 `<Icon name="..." size={16} />` 调用；纯图标按钮必须带 `aria-label`。
+- 隐藏 sprite 只能用 `width:0;height:0;overflow:hidden`，**不能用 `display:none`**，否则部分浏览器里 `<use>` 引用会失效。
 - 按钮基线集中在 `global.css` 末尾的「按钮 / 图标统一规范」区段：`min-height: 44px` 触摸目标、`inline-flex + gap` 图标对齐、`:active` 按压反馈、`:focus-visible` 焦点环与禁用态。
 - 移动端（≤768px）海报卡右上角为圆形「快速预览」图标按钮，不占用卡片底部标题空间；筛选按钮用 `aria-pressed` 同步选中态。
 
 ### 性能与响应速度
 
-- **切页**：`astro.config.mjs` 开启 `prefetch: { prefetchAll: true, defaultStrategy: 'viewport' }`，链接进入视口 300ms 后由 Astro 注入 `<link rel="prefetch">` 提前取回目标页 HTML；纯锚点链接用 `data-astro-prefetch="false"` 排除。不依赖 ClientRouter，静态多页站也能接近瞬时切换。
+- **切页（无刷新）**：`BaseLayout` 引入 Astro `<ClientRouter />`，站内点击只替换 `body` 并合并 `head`，不再白屏、不再重复下载 / 解析 CSS 与图片；与 `astro.config.mjs` 的 `prefetch: { prefetchAll: true, defaultStrategy: 'viewport' }` 配合，视口内链接的 HTML 已提前进缓存，实测 swap 约 25–70ms。默认 180ms 淡入淡出在 `global.css` 里压到 90ms，避免「点完还要等动画」。纯锚点链接仍用 `data-astro-prefetch="false"` 排除预取（不影响 router 接管）。
+- **⚠️ 脚本生命周期**：启用 ClientRouter 后 bundle 脚本**只执行一次**，因此所有初始化都必须挂在 `document.addEventListener('astro:page-load', ...)` 上；绑在当前 DOM 元素上的监听每次替换后重新绑定，`document` / `window` 级监听则用一次性守卫 + 动态 `document.querySelector` 查询当前元素，否则会在连续导航后累积。新增交互脚本务必遵守这条，或直接用事件委托。
+- **文档体积 / 图标**：18 个线性图标改为 sprite + `<use>`（见上节），首页 42 处图标引用不再各自携带完整 path；`favicon.svg` 显式声明，消除 `/favicon.ico` 的 404。
+- **滚动响应**：去掉全局 `html { scroll-behavior: smooth }`——它会让原生锚点跳转、focus 引起的滚动统统做动画。需要平滑时由 JS 显式 `scrollTo({ behavior: 'smooth' })` 控制，长距离（>1400px）改瞬时。
 - **首屏**：`BaseLayout` 的 `preloadImage` 给 Hero 背景（CSS 背景图浏览器发现得晚）加 `<link rel="preload" as="image" fetchpriority="high">`；首张主推大图 `loading="eager" fetchpriority="high"`，其余 lazy；游戏详情 / 攻略详情首图同样标 high。
 - **图片**：规格统一按「实际最大显示宽度 × 2 DPR」定，避免过采样。`build-images.mjs`：COVER 800×450 q76、BANNER 1440×810 q78、ICON 128×128 q80、SHOT 720×405 q74；`build-posters.mjs` 先按 720×960 合成再缩到 600×800 q76（合成坐标不变）。全部图片 **2.2MB → 1.4MB**、构建产物 **2.5MB → 1.7MB**；二维码 PNG 保持无损以保扫码识别率。改参数后需依次重跑两个脚本（依赖 `.assets-src/` 原始素材）再 build。
 - **图片加载优先级**：首屏 Hero / 主推首图 / 详情与攻略首图 `fetchpriority="high"`，其余 36 处懒加载图一律 `low`，避免与 LCP 抢带宽；所有 `<img>` 的 width/height 与实际文件一致，不产生 CLS。首页 GameCard、HotScroll 与详情页共用同一海报 URL，浏览器缓存可复用，不额外发请求。
 - **渲染**：移除 Hero 的 18s 无限缩放动画（整屏模糊大图会持续参与合成）、导航 `backdrop-filter` 20px → 12px、**去掉卡片分类标签的 `backdrop-filter`**（原来首页十余个模糊层在滚动时同时重算，改半透明实色 + 细边框）、卡片加 `contain: layout style`、`transition: all` 改为具体属性、卡片淡入 0.45s → 0.3s 且错峰封顶 0.14s。
-- **交互**：顶部导航搜索在首页 / 游戏库页直接驱动同页海报墙筛选（`preventDefault` + 派发 `input` + `history.replaceState` 同步 URL），不再整页跳转；无海报墙的详情页仍正常跳到游戏库。滚动监听用 rAF 节流且只在显隐状态翻转时写 DOM；长距离滚动（>1400px）改为瞬时；筛选预计算检索文本、改用 `hidden` 属性显隐卡片（配套 CSS `.poster-card[hidden]`）、连续输入合并到一帧；快速预览弹窗大图在 hover / focus 时预热缓存。
-- `public/favicon.svg` 显式声明图标，消除浏览器自动请求 `/favicon.ico` 的 404。
+- **交互**：顶部导航搜索在首页 / 游戏库页直接驱动同页海报墙筛选（`preventDefault` + 派发 `input` + `history.replaceState` 同步 URL），不再整页跳转；无海报墙的详情页 / 攻略页通过 `astro:transitions/client` 的 `navigate()` 无刷新跳到游戏库并带上 `?kw=` 预筛。滚动监听用 rAF 节流且只在显隐状态翻转时写 DOM；长距离滚动（>1400px）改为瞬时；筛选预计算检索文本、改用 `hidden` 属性显隐卡片（配套 CSS `.poster-card[hidden]`）、连续输入合并到一帧；快速预览弹窗大图在 hover / focus 时预热缓存。
+
 
 ## 本地开发
 
