@@ -745,19 +745,28 @@ button:disabled, [aria-disabled='true'] { opacity: .5; cursor: not-allowed; tran
   margin-top: var(--sp-5);
 }
 
-/* 移动端：海报卡改为右上角圆形「快速预览」图标按钮，
-   不再隐藏功能，也不挤压底部标题与简介 */
+/* 移动端：游戏海报卡改为右上角圆形「快速预览」图标按钮，
+   不再隐藏功能，也不挤压底部标题与简介。
+   攻略卡（.guide-card）只有「阅读全文」一个按钮，保持底部长条形式，
+   否则会被下面的圆形规则误伤成图标按钮并压住标题。 */
 @media (max-width: 768px) {
-  .poster-actions {
+  .poster-card:not(.guide-card) .poster-actions {
     display: block; position: absolute; top: 10px; right: 10px;
     margin: 0; z-index: 3;
   }
-  .poster-actions .mini:not(.primary) { display: none; }
-  .poster-actions .mini.primary {
+  .poster-card:not(.guide-card) .poster-actions .mini:not(.primary) { display: none; }
+  .poster-card:not(.guide-card) .poster-actions .mini.primary {
     width: 44px; min-width: 44px; height: 44px; min-height: 44px;
     padding: 0; border-radius: 50%; font-size: 0; gap: 0;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
   }
+  /* 上面 666 行的移动端规则把 .poster-actions 整体隐藏了，攻略卡需显式恢复 */
+  .guide-card .poster-actions { display: flex; margin-top: 8px; }
+  .guide-card .poster-actions .mini.primary { padding: 8px 12px; font-size: 13px; }
+  .guide-card .poster-desc { -webkit-line-clamp: 1; }
+  /* 窄卡里日期「2026-11-15」会被 flex 挤成两行，收紧字号保持单行 */
+  .poster-meta .poster-rating { white-space: nowrap; font-size: 12px; }
+  .poster-meta .poster-tag { white-space: nowrap; font-size: 10px; padding: 3px 7px; }
 }
 
 /* 不支持 View Transitions API 的浏览器走 Astro fallback 动画，同样压短 */

@@ -14,7 +14,7 @@ const fmtDate = date.toISOString().slice(0, 10);
 const href = `${BASE}guides/${guide.slug}`;
 ---
 
-<article class="poster-card" data-title={title.toLowerCase()} data-tags={tags.join(' ').toLowerCase()}>
+<article class="poster-card guide-card" data-title={title.toLowerCase()} data-tags={tags.join(' ').toLowerCase()}>
   <img class="poster-img" src={coverImg} alt={`${title} 配图`} loading="lazy" decoding="async" fetchpriority="low" width="800" height="450" />
   <a class="poster-hit" href={href} aria-label={`阅读攻略 ${title}`}></a>
   <div class="poster-overlay">
