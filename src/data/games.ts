@@ -23,6 +23,7 @@
 // screenshots    string[]         否     截图画廊（空数组 → 详情页隐藏画廊）
 import gamesData from './games.json';
 import { asset } from '../utils/asset';
+import { HIDDEN_GAME_SLUGS } from './hidden-games';
 
 export interface Game {
   id: string;
@@ -46,8 +47,11 @@ export interface Game {
   screenshots: string[];
 }
 
+// 临时下架的游戏统一在此过滤（名单见 ./hidden-games.ts），数据仍保留在 games.json。
 // 统一把 public 下的图片路径转成 base 感知，避免项目页部署时图片 404
-export const games: Game[] = (gamesData as unknown as Game[]).map((g) => ({
+export const games: Game[] = (gamesData as unknown as Game[])
+  .filter((g) => !HIDDEN_GAME_SLUGS.includes(g.slug))
+  .map((g) => ({
   ...g,
   cover: asset(g.cover),
   poster: asset(g.poster ?? `/images/posters/${g.slug}.webp`),
