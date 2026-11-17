@@ -8,5 +8,10 @@
  *
  * 恢复展示：把对应 slug 从这个数组里删掉，重新构建即可，不用改别的文件。
  */
-// 剑与翼（魔幻）、机战：钢铁巨舰（科幻）
-export const HIDDEN_GAME_SLUGS: string[] = ['jian-yu-yi', 'jizhan-gangtie'];
+// 剑与翼（魔幻）、机战：钢铁巨舰（科幻）、小小屠龙 / 屠龙世界（传奇）
+export const HIDDEN_GAME_SLUGS: string[] = [
+  'jian-yu-yi',
+  'jizhan-gangtie',
+  'xiaoxiao-tulong',
+  'tulong-shijie',
+];
